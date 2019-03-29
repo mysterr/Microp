@@ -5,10 +5,10 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build
 WORKDIR /src
-COPY ["src/services/products.database/Products.Database.csproj", "src/services/products.database/"]
-RUN dotnet restore "src/services/products.database/Products.Database.csproj"
+COPY ["src/Services/Products.Database/Products.Database.csproj", "src/Services/Products.Database/"]
+RUN dotnet restore "src/Services/Products.Database/Products.Database.csproj"
 COPY . .
-WORKDIR "/src/src/services/products.database"
+WORKDIR "/src/src/Services/Products.Database"
 RUN dotnet build "Products.Database.csproj" -c Release -o /app
 
 FROM build AS publish

@@ -1,0 +1,45 @@
+version: '3.4'
+
+services:
+  web:
+    image: ${DOCKER_REGISTRY-}web
+    build:
+      context: .
+      dockerfile: src/Web/Dockerfile
+    container_name: web
+    ports:
+      - 8080:80
+    depends_on:
+      - rabbitmq
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+
+  products:
+    image: ${DOCKER_REGISTRY-}products
+    build:
+      context: .
+      dockerfile: src/Services/Products/Dockerfile
+    container_name: products
+    depends_on:
+      - rabbitmq
+
+  products.database:
+    image: ${DOCKER_REGISTRY-}productsdatabase
+    build:
+      context: .
+      dockerfile: src/Services/Products.Database/Dockerfile
+    container_name: productsdatabase
+    depends_on:
+      - rabbitmq
+      - nosql.data
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - 15672:15672
+      - 5672:5672
+    container_name: rabbitmq
+
+  nosql.data:
+    image: redis 
+    container_name: redis
