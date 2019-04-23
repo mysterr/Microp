@@ -1,0 +1,59 @@
+﻿@model IEnumerable<Web.Models.Product>
+
+@{
+    ViewData["Title"] = "Search";
+}
+
+<h1>Products search</h1>
+
+@using (@Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="input-group">
+        <input type="text" class="form-control" placeholder="Enter product name" name="searchstring">
+        <span class="input-group-btn">
+            <button class="btn btn-primary" type="submit">Search</button>
+        </span>
+    </div>
+}
+
+@if (Model != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Count)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Price)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Count)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Price)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<p class="alert-danger">@ViewData["Error"]</p>
+
+<p class="alert-info">@ViewData["Message"]</p>

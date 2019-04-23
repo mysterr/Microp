@@ -2,44 +2,34 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Domain.Data;
+using Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Products.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ValuesController : ControllerBase
+    public class ProductsAPIController : ControllerBase
     {
-        // GET api/values
+        private readonly IProductRepository _productRepository;
+
+        public ProductsAPIController(IProductRepository productRepository)
+        {
+            this._productRepository = productRepository;
+        }
+
         [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
+        public async Task<IActionResult> GetStat()
         {
-            return new string[] { "value1", "value2" };
+            var result = await _productRepository.GetStat();
+            return Ok(result);
         }
 
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
+        public async Task<IActionResult> GetList(string name)
         {
-            return "value";
-        }
-
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            var result = await _productRepository.GetList(name);
+            return Ok(result);
         }
     }
 }
