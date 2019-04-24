@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure
 {
-    class Repository : IProductRepository
+    class ProductRepository : IProductRepository
     {
         public Task<ProductsStatDTO> GetStat()
         {
@@ -14,6 +14,11 @@ namespace Infrastructure
         }
 
         public Task<IEnumerable<ProductDTO>> GetList(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> Add(ProductDTO product)
         {
             throw new NotImplementedException();
         }

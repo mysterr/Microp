@@ -14,11 +14,11 @@ namespace Services.Tests
 {    
     public class QAPITests
     {
-        private readonly Mock<IProductRepository> _mock;
+        private readonly Mock<IProductService> _mock;
         private readonly ProductsAPIController _controller;
         public QAPITests()
         {
-            _mock = new Mock<IProductRepository>();
+            _mock = new Mock<IProductService>();
             _mock.Setup(r => r.GetStat()).ReturnsAsync(new ProductsStatDTO { ItemsCount = 10, ProductsCount = 2, Sum = 15.5M});
             var productList = new List<ProductDTO>();
             productList.Add(new ProductDTO { Name = "abcde", Count = 2, Price = 13M });
@@ -97,7 +97,7 @@ namespace Services.Tests
 
             var list = res.Value;
             var listOfProducts = Assert.IsAssignableFrom<IEnumerable<ProductDTO>>(list);
-            Assert.True(listOfProducts.All(l => l.Name.IndexOf(searchString) > 0));
+            Assert.True(listOfProducts.All(l => l.Name.IndexOf(searchString) > -1));
         }
     }
 }

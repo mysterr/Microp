@@ -9,6 +9,7 @@ namespace Infrastructure
     {
         Task<ProductsStatDTO> GetStat();
         Task<IEnumerable<ProductDTO>> GetList(string name);
+        Task<bool> Add(ProductDTO product);
     }
 
 }

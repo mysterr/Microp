@@ -12,23 +12,23 @@ namespace Products.Controllers
     [ApiController]
     public class ProductsAPIController : ControllerBase
     {
-        private readonly IProductRepository _productRepository;
+        private readonly IProductService _productService;
 
-        public ProductsAPIController(IProductRepository productRepository)
+        public ProductsAPIController(IProductService productService)
         {
-            this._productRepository = productRepository;
+            this._productService = productService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetStat()
         {
-            var result = await _productRepository.GetStat();
+            var result = await _productService.GetStat();
             return Ok(result);
         }
 
         public async Task<IActionResult> GetList(string name)
         {
-            var result = await _productRepository.GetList(name);
+            var result = await _productService.GetList(name);
             return Ok(result);
         }
     }
