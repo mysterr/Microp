@@ -1,4 +1,4 @@
-﻿using Domain.Data;
+﻿using Data;
 using Infrastructure;
 using Moq;
 using System;
@@ -24,7 +24,8 @@ namespace Services.Tests
             _mock.Setup(r => r.GetList("abc")).ReturnsAsync(productList.Where(s => s.Name.Contains("abc")));
             _mock.Setup(r => r.GetList("")).ReturnsAsync(productList);
 
-            _service = new ProductService(_mock.Object);
+            //_service = new ProductService(_mock.Object);
+            _service = new ProductService(new ProductRepository());
         }
 
         [Fact]
@@ -44,6 +45,7 @@ namespace Services.Tests
             Assert.NotEqual(0, res.ItemsCount);
             Assert.NotEqual(0, res.ProductsCount);
             Assert.NotEqual(0, res.Sum);
+            //_mock.Verify(r => r.GetStat());
         }
 
         [Fact]
@@ -52,6 +54,7 @@ namespace Services.Tests
             var list = await _service.GetList("abc");
 
             Assert.IsAssignableFrom<IEnumerable<ProductDTO>>(list);
+            //_mock.Verify(r => r.GetList("abc"));
         }
 
         [Theory]
@@ -83,12 +86,23 @@ namespace Services.Tests
         [Fact]
         public async Task GetListReturnsEmptyResultIfParameterNotCorrespondToAnyProduct()
         {
-            var searchString = "qwertyuiop";
+            var searchString = "!#$%@^%$";
             var list = await _service.GetList(searchString);
 
             var listOfProducts = Assert.IsAssignableFrom<IEnumerable<ProductDTO>>(list);
 
             Assert.Empty(listOfProducts);
+        }
+        [Fact]
+        public async Task AddResultProductAdded()
+        {
+            var list = await _service.GetList("test");
+            var testCnt = list.Count();
+            var product = new ProductDTO { Name = "test", Count = 5, Price = 4M };
+            await _service.Add(product);
+            list = await _service.GetList("test");
+            Assert.Equal(testCnt+1, list.Count());
+            //_mock.Verify(r => r.Add(product));
         }
     }
 }

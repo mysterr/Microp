@@ -1,4 +1,4 @@
-﻿namespace Domain.Data
+﻿namespace Data
 {
     public class ProductsStatDTO
     {

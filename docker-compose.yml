@@ -14,12 +14,12 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
 
-  products:
-    image: ${DOCKER_REGISTRY-}products
+  products.queue:
+    image: ${DOCKER_REGISTRY-}productsqueue
     build:
       context: .
-      dockerfile: src/Services/Products/Dockerfile
-    container_name: products
+      dockerfile: src/Services/Products.Queue/Dockerfile
+    container_name: productsqueue
     depends_on:
       - rabbitmq
 

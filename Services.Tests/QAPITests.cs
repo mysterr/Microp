@@ -1,8 +1,8 @@
-﻿using Domain.Data;
+﻿using Data;
 using Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Products.Controllers;
+using Products.Database.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
