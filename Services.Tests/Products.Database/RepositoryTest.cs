@@ -1,5 +1,7 @@
-﻿using Data;
+﻿using AutoMapper;
+using Data;
 using Infrastructure;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +13,15 @@ namespace Services.Tests
 {
     public class QRepositoryTest
     {
-        private readonly IProductRepository _productRepository = new ProductRepository();
+        private readonly IProductRepository _productRepository;
+        private Mock<ProductsDbContext> _contextMock;
+        private Mock<IMapper> _mapperMock;
+
         public QRepositoryTest()
         {
-            
+            _contextMock = new Mock<ProductsDbContext>();
+            _mapperMock = new Mock<IMapper>();
+            _productRepository = new ProductRepository(_contextMock.Object, _mapperMock.Object);
         }
         [Fact]
         public async Task GetStatReturnsProductsStatDTOAsync()

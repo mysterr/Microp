@@ -15,7 +15,7 @@ namespace Services.Tests
     public class QAPITests
     {
         private readonly Mock<IProductService> _mock;
-        private readonly ProductsAPIController _controller;
+        private readonly ProductsController _controller;
         public QAPITests()
         {
             _mock = new Mock<IProductService>();
@@ -26,7 +26,7 @@ namespace Services.Tests
             _mock.Setup(r => r.GetList("abc")).ReturnsAsync(productList.Where(s => s.Name.Contains("abc")));
             _mock.Setup(r => r.GetList("")).ReturnsAsync(productList);
 
-            _controller = new ProductsAPIController(_mock.Object);
+            _controller = new ProductsController(_mock.Object);
         }
 
         [Fact]

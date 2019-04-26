@@ -9,24 +9,23 @@ namespace Products.Database.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductsAPIController : ControllerBase
+    public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;
 
-        public ProductsAPIController(IProductService productService)
+        public ProductsController(IProductService productService)
         {
             this._productService = productService;
         }
 
-        [Route("GetStat")]
-        [HttpGet]
+        [HttpGet("GetStat")]
         public async Task<IActionResult> GetStat()
         {
             var result = await _productService.GetStat();
             return Ok(result);
         }
 
-        [Route("GetList")]
+        [HttpGet("GetList")]
         public async Task<IActionResult> GetList(string name)
         {
             var result = await _productService.GetList(name);

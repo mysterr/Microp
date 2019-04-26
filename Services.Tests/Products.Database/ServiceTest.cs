@@ -12,20 +12,22 @@ namespace Services.Tests
 {
     public class QServiceTest
     {
-        private readonly Mock<IProductRepository> _mock;
+        private readonly Mock<IProductRepository> _mockRepository;
         private readonly IProductService _service;
         public QServiceTest()
         {
-            _mock = new Mock<IProductRepository>();
-            _mock.Setup(r => r.GetStat()).ReturnsAsync(new ProductsStatDTO { ItemsCount = 10, ProductsCount = 2, Sum = 15.5M });
-            var productList = new List<ProductDTO>();
-            productList.Add(new ProductDTO { Name = "abcde", Count = 2, Price = 13M });
-            productList.Add(new ProductDTO { Name = "hello", Count = 8, Price = 2.5M });
-            _mock.Setup(r => r.GetList("abc")).ReturnsAsync(productList.Where(s => s.Name.Contains("abc")));
-            _mock.Setup(r => r.GetList("")).ReturnsAsync(productList);
+            _mockRepository = new Mock<IProductRepository>();
+            _mockRepository.Setup(r => r.GetStat()).ReturnsAsync(new ProductsStatDTO { ItemsCount = 10, ProductsCount = 2, Sum = 15.5M });
+            var productList = new List<ProductDTO>
+            {
+                new ProductDTO { Name = "abcde", Count = 2, Price = 13M },
+                new ProductDTO { Name = "hello", Count = 8, Price = 2.5M }
+            };
+            _mockRepository.Setup(r => r.GetList("abc")).ReturnsAsync(productList.Where(s => s.Name.Contains("abc")));
+            _mockRepository.Setup(r => r.GetList("")).ReturnsAsync(productList);
 
-            //_service = new ProductService(_mock.Object);
-            _service = new ProductService(new ProductRepository());
+            _service = new ProductService(_mockRepository.Object);
+            //_service = new ProductService(new ProductRepository());
         }
 
         [Fact]
@@ -45,7 +47,7 @@ namespace Services.Tests
             Assert.NotEqual(0, res.ItemsCount);
             Assert.NotEqual(0, res.ProductsCount);
             Assert.NotEqual(0, res.Sum);
-            //_mock.Verify(r => r.GetStat());
+            _mockRepository.Verify(r => r.GetStat());
         }
 
         [Fact]
@@ -54,7 +56,7 @@ namespace Services.Tests
             var list = await _service.GetList("abc");
 
             Assert.IsAssignableFrom<IEnumerable<ProductDTO>>(list);
-            //_mock.Verify(r => r.GetList("abc"));
+            _mockRepository.Verify(r => r.GetList("abc"));
         }
 
         [Theory]
@@ -102,7 +104,7 @@ namespace Services.Tests
             await _service.Add(product);
             list = await _service.GetList("test");
             Assert.Equal(testCnt+1, list.Count());
-            //_mock.Verify(r => r.Add(product));
+            _mockRepository.Verify(r => r.Add(product));
         }
     }
 }
