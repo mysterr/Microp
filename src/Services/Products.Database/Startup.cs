@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Products.Database.Model;
 
 namespace Products.Database
 {
@@ -23,14 +24,19 @@ namespace Products.Database
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddTransient<IProductService, ProductService>();
-            services.AddSingleton<IProductRepository, ProductRepository>();
+            services.AddTransient<IProductRepository, ProductRepository>();
             services.AddAutoMapper();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo{ Title = "Products.Database", Version = "v1" });
             });
-            services.AddDbContext<ProductsDbContext>();
-                //(options =>
+            services.Configure<Settings>(options =>
+            {
+                options.ConnectionString = Configuration.GetSection("MongoConnection:ConnectionString").Value;
+                options.Database = Configuration.GetSection("MongoConnection:Database").Value;
+            });
+            services.AddScoped<ProductsDbContext>();
+//            services.AddDbContext<ProductsDbContext>
                 //options.UseMySQL(
                 //    Configuration.GetConnectionString("DefaultConnection")),
                 //    ServiceLifetime.Transient

@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
+using Products.Database;
 
 namespace Services.Tests
 {
@@ -21,7 +22,7 @@ namespace Services.Tests
         {
             _server = new TestServer(new WebHostBuilder()
                 .UseEnvironment("Development")
-                .UseStartup<Products.Database.Startup>());
+                .UseStartup<Startup>());
             _client = _server.CreateClient();
             _client.BaseAddress = new Uri("http://localhost:8082");
         }
