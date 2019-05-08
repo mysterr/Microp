@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Model;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Products.Database.Model;
 using System;
@@ -18,10 +19,14 @@ namespace Data
             try
             {
                 //MongoClientSettings mcsettings = MongoClientSettings.FromUrl(new MongoUrl(settings.Value.ConnectionString));
-                //    mcsettings.SslSettings = new SslSettings { EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12 };
-                var mongoClient = new MongoClient(settings.Value.ConnectionString);
-                _database = mongoClient.GetDatabase(settings.Value.Database);
+                //mcsettings.SslSettings = new SslSettings { EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12 };
+                var client = new MongoClient(settings.Value.ConnectionString);
+                if (client != null)
+                    _database = client.GetDatabase(settings.Value.Database);
+
+                //var dbsnames = mongoClient.ListDatabaseNames().ToList();
                 _products = _database.GetCollection<Product>("Products");
+                //var collections = _database.ListCollectionNames().ToList();
             }
             catch (Exception ex)
             {

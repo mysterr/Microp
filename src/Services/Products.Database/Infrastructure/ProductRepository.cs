@@ -20,6 +20,7 @@ namespace Infrastructure
         {
             _mapper = mapper;
             _context = context;
+
             //_list.Add(new ProductDTO { Count = 1, Name = "aaabbb", Price = 10.1M });
             //_list.Add(new ProductDTO { Count = 3, Name = "zzz", Price = 1.9M });
         }
@@ -52,8 +53,7 @@ namespace Infrastructure
                 return _mapper.Map<IEnumerable<ProductDTO>>(products);
             }
             catch (Exception ex)
-            {
-                // log or manage the exception
+            {                
                 throw ex;
             }
             //var res = _mapper.Map<IEnumerable<ProductDTO>>(_context.Products).Where(s => s.Name.Contains(name));

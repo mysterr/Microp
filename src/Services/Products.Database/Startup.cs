@@ -23,9 +23,9 @@ namespace Products.Database
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            services.AddTransient<IProductService, ProductService>();
-            services.AddTransient<IProductRepository, ProductRepository>();
-            services.AddAutoMapper();
+            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddAutoMapper(typeof(Data.DomainProfile));
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo{ Title = "Products.Database", Version = "v1" });
@@ -36,26 +36,36 @@ namespace Products.Database
                 options.Database = Configuration.GetSection("MongoConnection:Database").Value;
             });
             services.AddScoped<ProductsDbContext>();
-//            services.AddDbContext<ProductsDbContext>
-                //options.UseMySQL(
-                //    Configuration.GetConnectionString("DefaultConnection")),
-                //    ServiceLifetime.Transient
-                //    );
+            //            services.AddDbContext<ProductsDbContext>
+            //options.UseMySQL(
+            //    Configuration.GetConnectionString("DefaultConnection")),
+            //    ServiceLifetime.Transient
+            //    );
+
+            //services.AddCors(options =>
+            //{
+            //    options.AddPolicy("CorsPolicy",
+            //        builder => builder.AllowAnyOrigin()
+            //        .AllowAnyMethod()
+            //        .AllowAnyHeader()
+            //        .AllowCredentials());
+            //});
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IMapper autoMapper)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                autoMapper.ConfigurationProvider.AssertConfigurationIsValid();
             }
             else
             {
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
+            //app.UseCors("CorsPolicy");
             //app.UseHttpsRedirection();
             app.UseMvc();
             app.UseSwagger().UseSwaggerUI(c =>

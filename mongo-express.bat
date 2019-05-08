@@ -1,0 +1,1 @@
+docker run -it --rm --network microp_demonet -p 8088:8081 -e ME_CONFIG_MONGODB_SERVER="mongo.data" -e ME_CONFIG_MONGODB_ADMINUSERNAME="admin" -e ME_CONFIG_MONGODB_ADMINPASSWORD="admin123" mongo-express

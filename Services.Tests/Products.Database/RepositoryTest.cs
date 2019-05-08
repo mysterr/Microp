@@ -10,9 +10,31 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 using MongoDB.Driver;
+using Microsoft.Extensions.Options;
+using Products.Database.Model;
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace Services.Tests
 {
+    public class MyOptions : IOptions<Settings>
+    {
+        private readonly string ConnectionString;
+        private readonly string Database;
+        public Settings Value => new Settings { ConnectionString = ConnectionString, Database = Database };
+
+        public MyOptions()
+        {
+            var builder = new ConfigurationBuilder()
+                 .SetBasePath(Directory.GetCurrentDirectory())
+                 .AddJsonFile("appsettings.test.json", optional: false, reloadOnChange: true)
+                 .AddEnvironmentVariables();
+
+            IConfiguration config = builder.Build();
+            ConnectionString = config.GetSection("MongoConnection:ConnectionString").Value;
+            Database = config.GetSection("MongoConnection:Database").Value;
+        }
+    }
     public class QRepositoryTest
     {
         private readonly IProductRepository _productRepository;
@@ -21,12 +43,16 @@ namespace Services.Tests
 
         public QRepositoryTest()
         {
-            _contextMock = new Mock<ProductsDbContext>();
-            var productList = new List<Product>
-            {
-                new Product { Id = "1", Name = "abcde", Count = 2, Price = 13M },
-                new Product { Id = "2", Name = "hello", Count = 8, Price = 2.5M }
-            };
+            var option = new Mock<IOptions<Settings>>();
+            var myOptions = new MyOptions();
+            option.Setup(o => o.Value).Returns(myOptions.Value);
+
+            _contextMock = new Mock<ProductsDbContext>(option.Object);
+            //var productList = new List<Product>
+            //{
+            //    new Product { Id = new Guid(), Name = "abcde", Count = 2, Price = 13M },
+            //    new Product { Id = new Guid(), Name = "hello", Count = 8, Price = 2.5M }
+            //};
             _mapperMock = new Mock<IMapper>();
             _productRepository = new ProductRepository(_contextMock.Object, _mapperMock.Object);
         }

@@ -1,5 +1,8 @@
 version: '3.4'
 
+networks:
+  demonet:
+
 services:
   web:
     image: ${DOCKER_REGISTRY-}web
@@ -13,6 +16,8 @@ services:
       - rabbitmq
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - demonet
 
   products.queue:
     image: ${DOCKER_REGISTRY-}productsqueue
@@ -23,6 +28,8 @@ services:
     depends_on:
       - rabbitmq
       - nosql.data
+    networks:
+      - demonet
 
   products.database:
     image: ${DOCKER_REGISTRY-}productsdatabase
@@ -33,6 +40,8 @@ services:
     depends_on:
       - rabbitmq
       - mongo.data
+    networks:
+      - demonet
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
@@ -40,21 +49,29 @@ services:
       - 15672:15672
       - 5672:5672
     container_name: rabbitmq
+    networks:
+      - demonet
 
   nosql.data:
     image: redis 
     container_name: redis
+    networks:
+      - demonet
 
   mongo.data:
     image: mongo:latest
     environment:
         - MONGO_INITDB_DATABASE=productsdb
-        - MONGO_INITDB_ROOT_USERNAME=demo
-        - MONGO_INITDB_ROOT_PASSWORD=demo123
+        - MONGO_INITDB_ROOT_USERNAME=admin
+        - MONGO_INITDB_ROOT_PASSWORD=admin123
         - MONGO_DATA_DIR=/data/db
         - MONGO_LOG_DIR=/dev/null
         - MONGODB_USER=demo
         - MONGODB_PASS=demo123
     ports:
         - 27017:27017
+    volumes:
+        - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
     container_name: mongodb
+    networks:
+      - demonet
