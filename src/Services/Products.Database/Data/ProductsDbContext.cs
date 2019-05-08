@@ -1,7 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using Model;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using Products.Database.Model;
 using System;

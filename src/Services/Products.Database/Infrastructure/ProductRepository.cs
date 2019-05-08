@@ -26,7 +26,7 @@ namespace Infrastructure
         }
         public async Task<ProductsStatDTO> GetStat()
         {
-            var total = await _context.Products.Aggregate().Group(_ => true,
+            var total = await _context.Products.Aggregate().Group(_ => true,  
                 g => new
                 {
                     itemsCount = g.Count(),

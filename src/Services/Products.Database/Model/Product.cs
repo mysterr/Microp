@@ -12,6 +12,7 @@ namespace Model
         public Guid Id { get; set; }
         public string Name { get; set; }
         public int Count { get; set; }
+        [BsonRepresentation(BsonType.Decimal128)]
         public decimal Price { get; set; }
     }
 }
