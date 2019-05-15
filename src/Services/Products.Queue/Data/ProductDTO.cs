@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Products.Database.Data
+namespace Products.Queue.Data
 {
     public class ProductDTO
     {

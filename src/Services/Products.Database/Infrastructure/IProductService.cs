@@ -1,8 +1,8 @@
-﻿using Data;
+﻿using Products.Database.Data;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Infrastructure
+namespace Products.Database.Infrastructure
 {
     public interface IProductService
     {

@@ -1,9 +1,10 @@
-﻿using Data;
+﻿using Products.Database.Data;
+using Products.Database.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Infrastructure
+namespace Products.Database.Domain
 {
     public class ProductService : IProductService
     {

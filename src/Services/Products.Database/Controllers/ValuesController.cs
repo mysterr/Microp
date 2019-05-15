@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using Products.Database.Infrastructure;
 
 namespace Products.Database.Controllers
 {

@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Model
+namespace Products.Database.Model
 {
     public class Product
     {

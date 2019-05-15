@@ -1,4 +1,3 @@
-using Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using System;
@@ -9,6 +8,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 using Products.Database;
+using Products.Database.Data;
 
 namespace Services.Tests
 {

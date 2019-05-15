@@ -1,6 +1,7 @@
-﻿using Data;
-using Infrastructure;
-using Moq;
+﻿using Moq;
+using Products.Database.Data;
+using Products.Database.Domain;
+using Products.Database.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;

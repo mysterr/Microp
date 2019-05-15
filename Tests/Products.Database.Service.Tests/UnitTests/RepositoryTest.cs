@@ -1,7 +1,4 @@
 ﻿using AutoMapper;
-using Data;
-using Infrastructure;
-using Model;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -14,6 +11,8 @@ using Microsoft.Extensions.Options;
 using Products.Database.Model;
 using Microsoft.Extensions.Configuration;
 using System.IO;
+using Products.Database.Infrastructure;
+using Products.Database.Data;
 
 namespace Services.Tests
 {

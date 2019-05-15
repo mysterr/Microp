@@ -27,7 +27,6 @@ services:
     container_name: productsqueue
     depends_on:
       - rabbitmq
-      - nosql.data
     networks:
       - demonet
 
@@ -40,6 +39,7 @@ services:
     depends_on:
       - rabbitmq
       - mongo.data
+      - nosql.data
     networks:
       - demonet
 

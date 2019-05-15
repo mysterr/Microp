@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
-using Data;
-using Model;
+using Products.Database.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;

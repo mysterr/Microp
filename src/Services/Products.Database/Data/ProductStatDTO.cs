@@ -1,4 +1,4 @@
-﻿namespace Data
+﻿namespace Products.Database.Data
 {
     public class ProductsStatDTO
     {

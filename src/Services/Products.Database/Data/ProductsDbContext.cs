@@ -1,16 +1,15 @@
 ﻿using Microsoft.Extensions.Options;
-using Model;
 using MongoDB.Driver;
 using Products.Database.Model;
 using System;
 
-namespace Data
+namespace Products.Database.Data
 {
     public class ProductsDbContext 
     {
         private readonly IMongoDatabase _database;
-        private readonly IMongoCollection<Product> _products;
-        public IMongoCollection<Product> Products => _products;
+
+        public IMongoCollection<Product> Products { get; }
 
         public ProductsDbContext(IOptions<Settings> settings)
         {
@@ -23,12 +22,12 @@ namespace Data
                     _database = client.GetDatabase(settings.Value.Database);
 
                 //var dbsnames = mongoClient.ListDatabaseNames().ToList();
-                _products = _database.GetCollection<Product>("Products");
+                Products = _database.GetCollection<Product>("Products");
                 //var collections = _database.ListCollectionNames().ToList();
             }
             catch (Exception ex)
             {
-                throw new Exception("Can not access to db server.", ex);
+                throw new Exception("Cannot access to db server.", ex);
             }
         }
     }
