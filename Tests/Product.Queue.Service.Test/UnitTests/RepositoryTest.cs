@@ -28,7 +28,7 @@ namespace Product.Queue.Service.Test.UnitTests
                 Price = 9M
             };
             await repository.Add(productDTO);
-            busMock.Verify(b => b.PublishAsync(productDTO));
+            busMock.Verify(b => b.PublishAsync(productDTO, "product.add"));
         }
     }
 }

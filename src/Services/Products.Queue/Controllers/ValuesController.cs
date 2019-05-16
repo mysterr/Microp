@@ -14,9 +14,9 @@ namespace Products.Queue.Controllers
     {
         private readonly IProductRepository _productRepository;
 
-        public ProductsController(IProductRepository productService)
+        public ProductsController(IProductRepository productRepository)
         {
-            this._productRepository = productService;
+            this._productRepository = productRepository;
         }
 
 

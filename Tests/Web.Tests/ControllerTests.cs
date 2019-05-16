@@ -9,6 +9,7 @@ using Web.ViewModels;
 using System.Linq;
 using Web.Infrastructure;
 using Moq;
+using System.Net.Http;
 
 namespace Web.Tests
 {
@@ -237,7 +238,8 @@ namespace Web.Tests
         [Fact]
         public async Task AddProductActuallyAdded()
         {
-            var controller = new HomeController(new ProductRepository());
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            var controller = new HomeController(new ProductRepository(mockHttpClientFactory.Object));
             var product = new Product("Unic product name", 10, 15.5M);
 
             var result = await controller.Add(product);

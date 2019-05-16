@@ -22,7 +22,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\services\products.database\Products.Database.csproj" />
     <ProjectReference Include="..\..\src\Services\Products.Queue\Products.Queue.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.test.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

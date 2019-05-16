@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using EasyNetQ;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +9,7 @@ using Products.Database.Data;
 using Products.Database.Domain;
 using Products.Database.Infrastructure;
 using Products.Database.Model;
+using System.Reflection;
 
 namespace Products.Database
 {
@@ -37,6 +39,7 @@ namespace Products.Database
                 options.Database = Configuration.GetSection("MongoConnection:Database").Value;
             });
             services.AddScoped<ProductsDbContext>();
+            services.AddSingleton(RabbitHutch.CreateBus(Configuration.GetSection("RabbitConnection:ConnectionString").Value));
             //            services.AddDbContext<ProductsDbContext>
             //options.UseMySQL(
             //    Configuration.GetConnectionString("DefaultConnection")),
@@ -74,6 +77,7 @@ namespace Products.Database
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Products.Database");
                 //c.ConfigureOAuth2("swagger", "secret".Sha256(), "swagger");
             });
+            app.UseSubscribe("MessageService", Assembly.GetExecutingAssembly());
         }
     }
 }

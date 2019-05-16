@@ -26,35 +26,46 @@ namespace Products.Database.Infrastructure
         }
         public async Task<ProductsStatDTO> GetStat()
         {
-            var total = await _context.Products.Aggregate().Group(_ => true,  
-                g => new
-                {
-                    itemsCount = g.Count(),
-                    productsCount = g.Sum(f => f.Count),
-                    productsSum = g.Sum(f => f.Price)
-                }).FirstAsync();
-
-            return new ProductsStatDTO
+            try
             {
-                ItemsCount = total.itemsCount,
-                ProductsCount = total.productsCount,
-                Sum = total.productsSum
-            };
+                var total = await _context.Products.Aggregate().Group(_ => true,
+                        g => new
+                        {
+                            itemsCount = g.Count(),
+                            productsCount = g.Sum(f => f.Count),
+                            productsSum = g.Sum(f => f.Price)
+                        }).FirstAsync();
+
+                return new ProductsStatDTO
+                {
+                    ItemsCount = total.itemsCount,
+                    ProductsCount = total.productsCount,
+                    Sum = total.productsSum
+                };
+            }
+            catch (Exception ex)
+            {
+
+                throw new DatabaseErrorException(ex);
+            }
+
+
+
             //return Task.Run(() => new ProductsStatDTO { ItemsCount = _context.Products.Sum(s => s.Count), ProductsCount = _context.Products.Count(), Sum = _context.Products.Sum(s => s.Price) });
             //return Task.Run(() => new ProductsStatDTO { ItemsCount = _list.Sum(s => s.Count), ProductsCount = _list.Count(), Sum = _list.Sum(s => s.Price) });
         }
 
         public async Task<IEnumerable<ProductDTO>> GetList(string name)
         {
-            var filter = Builders<Product>.Filter.Where(f=> f.Name.Contains(name));
+            var filter = Builders<Product>.Filter.Where(f => f.Name.Contains(name ?? ""));
             try
             {
-                var products = await _context.Products.Find(filter).ToListAsync();
+                var products = await _context.Products.FindAsync(filter);
                 return _mapper.Map<IEnumerable<ProductDTO>>(products);
             }
             catch (Exception ex)
-            {                
-                throw ex;
+            {
+                throw new DatabaseErrorException(ex);
             }
             //var res = _mapper.Map<IEnumerable<ProductDTO>>(_context.Products).Where(s => s.Name.Contains(name));
             //return Task.Run(() => _list.Where(s => s.Name.Contains(name)));

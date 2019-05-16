@@ -17,7 +17,7 @@ namespace Products.Queue.Infrastructure
         public async Task Add(ProductDTO product)
         {
             // send to queue
-            await _bus.PublishAsync(product);
+            await _bus.PublishAsync(product, "product.add");
         }
     }
 }
