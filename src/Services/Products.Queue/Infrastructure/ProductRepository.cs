@@ -1,5 +1,5 @@
-﻿using EasyNetQ;
-using Products.Queue.Data;
+﻿using Domain.Models;
+using EasyNetQ;
 using System;
 using System.Collections.Generic;
 using System.Linq;

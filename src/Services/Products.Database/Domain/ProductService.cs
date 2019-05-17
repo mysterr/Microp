@@ -1,4 +1,5 @@
-﻿using Products.Database.Data;
+﻿using Domain.Models;
+using Products.Database.Data;
 using Products.Database.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;

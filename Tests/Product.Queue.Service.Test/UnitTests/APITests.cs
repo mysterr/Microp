@@ -1,5 +1,4 @@
-﻿using Products.Queue.Data;
-using Products.Queue.Controllers;
+﻿using Products.Queue.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,15 +6,16 @@ using System.Threading.Tasks;
 using Xunit;
 using Products.Queue.Infrastructure;
 using Moq;
+using Domain.Models;
 
-namespace Services.Tests.Products.Queue
+namespace Products.Queue.Service.Test.UnitTests
 {
-    public class APITests
+    public class QAPITests
     {
         private readonly ProductsController _productController;
         private readonly Mock<IProductRepository> _mock;
 
-        public APITests()
+        public QAPITests()
         {
             _mock = new Mock<IProductRepository>();
             _productController = new ProductsController(_mock.Object);

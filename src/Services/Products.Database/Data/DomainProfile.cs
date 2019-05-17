@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Domain.Models;
 using Products.Database.Model;
 using System;
 using System.Collections.Generic;

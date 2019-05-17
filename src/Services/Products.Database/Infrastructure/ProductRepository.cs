@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Models;
 
 namespace Products.Database.Infrastructure
 {
@@ -26,6 +27,15 @@ namespace Products.Database.Infrastructure
         }
         public async Task<ProductsStatDTO> GetStat()
         {
+            if (0 == await _context.Products.CountDocumentsAsync(_ => true))
+            {
+                return new ProductsStatDTO
+                {
+                    ItemsCount = 0,
+                    ProductsCount = 0,
+                    Sum = 0
+                };
+            }
             try
             {
                 var total = await _context.Products.Aggregate().Group(_ => true,
@@ -57,6 +67,10 @@ namespace Products.Database.Infrastructure
 
         public async Task<IEnumerable<ProductDTO>> GetList(string name)
         {
+            if (0 == await _context.Products.CountDocumentsAsync(_ => true))
+            {
+                return new List<ProductDTO>();
+            }
             var filter = Builders<Product>.Filter.Where(f => f.Name.Contains(name ?? ""));
             try
             {

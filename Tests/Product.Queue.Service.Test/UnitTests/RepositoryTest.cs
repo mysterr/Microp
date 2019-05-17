@@ -1,17 +1,17 @@
-﻿using EasyNetQ;
+﻿using Domain.Models;
+using EasyNetQ;
 using Moq;
-using Products.Queue.Data;
 using Products.Queue.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
 
-namespace Product.Queue.Service.Test.UnitTests
+namespace Products.Queue.Service.Test.UnitTests
 {
-    public class RepositoryTest
+    public class QRepositoryTest
     {
-        public RepositoryTest()
+        public QRepositoryTest()
         {
 
         }

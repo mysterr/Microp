@@ -1,4 +1,5 @@
-﻿using EasyNetQ.AutoSubscribe;
+﻿using Domain.Models;
+using EasyNetQ.AutoSubscribe;
 using EasyNetQ.Consumer;
 using Products.Database.Data;
 using System;

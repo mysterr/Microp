@@ -1,24 +1,25 @@
+﻿using Domain.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Xunit;
-using Products.Database;
-using Products.Database.Data;
 
-namespace Services.Tests
+namespace Web.Tests.IntegrationTests
 {
     [Collection("Integration Tests")]
-    public class QAPIIntegrationTests :IDisposable //: IClassFixture<WebApplicationFactory<Products.Startup>>
+    public class DAPIIntegrationTests : IDisposable //: IClassFixture<WebApplicationFactory<Products.Startup>>
     {
         private readonly HttpClient _client;
         private readonly TestServer _server;
 
-        public QAPIIntegrationTests()
+        public DAPIIntegrationTests()
         {
             _server = new TestServer(new WebHostBuilder()
                 .UseEnvironment("Development")
@@ -57,7 +58,8 @@ namespace Services.Tests
         public async Task CallGetStatReturnsProductStatDTO()
         {
             var response = await _client.GetAsync("/api/Products/GetStat");
-            var result = await response.Content.ReadAsAsync<ProductsStatDTO>();
+            var reply = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<ProductsStatDTO>(reply);
             Assert.True(result.ItemsCount > 0);
             Assert.True(result.ProductsCount > 0);
             Assert.True(result.Sum > 0);
@@ -66,7 +68,8 @@ namespace Services.Tests
         public async Task CallGetListReturnsProductDTOList()
         {
             var response = await _client.GetAsync("/api/Products/GetList?name=ab");
-            var result = await response.Content.ReadAsAsync<IEnumerable<ProductDTO>>();
+            var reply = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<IEnumerable<ProductDTO>>(reply);
             Assert.NotEmpty(result);
             Assert.Contains("ab", result.First().Name);
         }

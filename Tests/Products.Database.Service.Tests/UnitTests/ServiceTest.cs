@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using Domain.Models;
+using Moq;
 using Products.Database.Data;
 using Products.Database.Domain;
 using Products.Database.Infrastructure;
@@ -11,11 +12,11 @@ using Xunit;
 
 namespace Services.Tests
 {
-    public class QServiceTest
+    public class DServiceTest
     {
         private readonly Mock<IProductRepository> _mockRepository;
         private readonly IProductService _service;
-        public QServiceTest()
+        public DServiceTest()
         {
             _mockRepository = new Mock<IProductRepository>();
             _mockRepository.Setup(r => r.GetStat()).ReturnsAsync(new ProductsStatDTO { ItemsCount = 10, ProductsCount = 2, Sum = 15.5M });

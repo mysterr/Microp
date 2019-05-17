@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Products.Database.Data
+﻿
+namespace Domain.Models
 {
     public class ProductDTO
     {

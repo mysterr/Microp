@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Domain.Models;
+using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Products.Database.Controllers;
 using Products.Database.Data;
@@ -12,11 +13,11 @@ using Xunit;
 
 namespace Services.Tests
 {    
-    public class QAPITests
+    public class DAPITests
     {
         private readonly Mock<IProductService> _mock;
         private readonly ProductsController _controller;
-        public QAPITests()
+        public DAPITests()
         {
             _mock = new Mock<IProductService>();
             _mock.Setup(r => r.GetStat()).ReturnsAsync(new ProductsStatDTO { ItemsCount = 10, ProductsCount = 2, Sum = 15.5M});

@@ -12,8 +12,6 @@ namespace Web.Infrastructure
     {
         private readonly IHttpClientFactory _clientFactory;
         private readonly HttpClient _client;
-        private readonly string dServiceURL = "localhost:8082/";
-        private readonly string qServiceURL = "localhost:8081/";
 
         List<Product> _products = new List<Product>();
         public ProductRepository(IHttpClientFactory clientFactory)
@@ -23,7 +21,7 @@ namespace Web.Infrastructure
         }
         public async Task Create(Product item)
         {
-            //var response = await _client.PostAsync(qServiceURL + "api/Add", JsonConvert.SerializeObject(item));
+            //var response = await _client.PostAsync(qServiceURL + "api/Products", JsonConvert.SerializeObject(item));
 
             await Task.Run(() => _products.Add(item));
         }

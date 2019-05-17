@@ -14,35 +14,17 @@ using System.IO;
 using Products.Database.Infrastructure;
 using Products.Database.Data;
 using System.Threading;
+using Domain.Models;
 
 namespace Services.Tests
 {
-    public class MyOptions : IOptions<Settings>
-    {
-        private readonly string ConnectionString;
-        private readonly string Database;
-        public Settings Value => new Settings { ConnectionString = ConnectionString, Database = Database };
-
-        public MyOptions()
-        {
-            //var builder = new ConfigurationBuilder()
-            //     .SetBasePath(Directory.GetCurrentDirectory())
-            //     .AddJsonFile("appsettings.test.json", optional: false, reloadOnChange: true)
-            //     .AddEnvironmentVariables();
-
-            //IConfiguration config = builder.Build();
-            //ConnectionString = config.GetSection("MongoConnection:ConnectionString").Value;
-            //Database = config.GetSection("MongoConnection:Database").Value;
-        }
-    }
-
-    public class QRepositoryTest
+    public class DRepositoryTest
     {
         private readonly IProductRepository _productRepository;
-        private Mock<ProductsDbContext> _contextMock;
-        private Mock<IMapper> _mapperMock;
+        private readonly Mock<ProductsDbContext> _contextMock;
+        private readonly Mock<IMapper> _mapperMock;
 
-        public QRepositoryTest()
+        public DRepositoryTest()
         {
             //var option = new Mock<IOptions<Settings>>();
             //var myOptions = new MyOptions();

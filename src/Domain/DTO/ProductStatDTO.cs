@@ -1,4 +1,4 @@
-﻿namespace Products.Database.Data
+﻿namespace Domain.Models
 {
     public class ProductsStatDTO
     {

@@ -1,20 +1,21 @@
-﻿using EasyNetQ;
+﻿using Domain.Models;
+using EasyNetQ;
 using Microsoft.Extensions.Configuration;
 using Products.Queue.Controllers;
-using Products.Queue.Data;
 using Products.Queue.Infrastructure;
+using System;
 using System.IO;
 using Xunit;
 
-namespace Product.Queue.Service.Test.IntegrationTests
+namespace QIntegrationTests
 {
-    public class APITestsInteg
+    public class MessageQueueTestsInteg : IDisposable
     {
         private readonly ProductsController _productController;
         private readonly ProductRepository _productRepository;
         private readonly IBus _bus;
 
-        public APITestsInteg()
+        public MessageQueueTestsInteg()
         {
             var builder = new ConfigurationBuilder()
              .SetBasePath(Directory.GetCurrentDirectory())
@@ -37,6 +38,11 @@ namespace Product.Queue.Service.Test.IntegrationTests
                 Price = 9M
             };
             await _productController.Add(productDTO);
+        }
+
+        public void Dispose()
+        {
+            
         }
     }
 }
