@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -35,6 +36,7 @@ namespace Web
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+                //.AddApplicationPart((typeof(Web.Controllers.HomeController).Assembly));
 
             services.AddSingleton<IRepository<Product>,ProductRepository>();
             services.AddHttpClient();

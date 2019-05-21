@@ -26,8 +26,17 @@ namespace Web.Tests.IntegrationTests
             _server = new TestServer(new WebHostBuilder()
                 .UseEnvironment("Development")
                 .UseStartup<Startup>());
+            
             _client = _server.CreateClient();
-            _client.BaseAddress = new Uri("http://localhost:8082");
+
+            var builder = new ConfigurationBuilder()
+                 .SetBasePath(Directory.GetCurrentDirectory())
+                 .AddJsonFile("appsettings.test.json", optional: false, reloadOnChange: true)
+                 .AddEnvironmentVariables();
+
+            IConfiguration config = builder.Build();
+
+            _client.BaseAddress = new Uri(config.GetSection("QueueService:ConnectionString").Value);
         }
         public void Dispose()
         {

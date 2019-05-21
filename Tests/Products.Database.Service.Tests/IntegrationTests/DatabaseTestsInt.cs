@@ -14,6 +14,7 @@ using Products.Database.Infrastructure;
 using Products.Database.Data;
 using System.IO;
 using Domain.Models;
+using AutoMapper;
 
 namespace QDatabaseTests
 {
@@ -39,51 +40,57 @@ namespace QDatabaseTests
     [Collection("Integration Tests")]
     public class MongoRepositoryTest
     {
-    private readonly IProductRepository _productRepository;
+        private readonly IProductRepository _productRepository;
 
-    public MongoRepositoryTest()
-    {
-        //var option = new Mock<IOptions<Settings>>();
-        //var myOptions = new MyOptions();
-        //option.Setup(o => o.Value).Returns(myOptions.Value);
-        var productList = new List<Product>
+        public MongoRepositoryTest()
+        {
+            //var option = new Mock<IOptions<Settings>>();
+            //var myOptions = new MyOptions();
+            //option.Setup(o => o.Value).Returns(myOptions.Value);
+            var productList = new List<Product>
             {
                 new Product { Id = new Guid(), Name = "abcde", Count = 2, Price = 13M },
                 new Product { Id = new Guid(), Name = "hello", Count = 8, Price = 2.5M }
             };
 
-        _productRepository = new ProductRepository();
-    }
+            var context = new ProductsDbContext();
+            var mockMapper = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new DomainProfile());
+            });
+            var mapper = mockMapper.CreateMapper();
+            _productRepository = new ProductRepository(context, mapper);
+        }
 
-    [Fact]
-    public async Task GetStatReturnsProductsStatDTOAsync()
-    {
-        var result = await _productRepository.GetStat();
+        [Fact]
+        public async Task GetStatReturnsProductsStatDTOAsync()
+        {
+            var result = await _productRepository.GetStat();
 
-        Assert.IsType<ProductsStatDTO>(result);
-    }
+            Assert.IsType<ProductsStatDTO>(result);
+        }
 
-    [Fact]
-    public async Task GetStatReturnNotNullAndNotZero()
-    {
-        var res = await _productRepository.GetStat();
+        [Fact]
+        public async Task GetStatReturnNotNullAndNotZero()
+        {
+            var res = await _productRepository.GetStat();
 
-        Assert.NotNull(res);
-        Assert.NotEqual(0, res.ItemsCount);
-        Assert.NotEqual(0, res.ProductsCount);
-        Assert.NotEqual(0, res.Sum);
-    }
-    [Fact]
-    public async Task GetListReturnsListOfProductDTOAsync()
-    {
-        var list = await _productRepository.GetList("abc");
+            Assert.NotNull(res);
+            Assert.NotEqual(0, res.ItemsCount);
+            Assert.NotEqual(0, res.ProductsCount);
+            Assert.NotEqual(0, res.Sum);
+        }
+        [Fact]
+        public async Task GetListReturnsListOfProductDTOAsync()
+        {
+            var list = await _productRepository.GetList("abc");
 
-        Assert.IsAssignableFrom<IEnumerable<ProductDTO>>(list);
+            Assert.IsAssignableFrom<IEnumerable<ProductDTO>>(list);
+        }
+        [Fact]
+        public async Task CanAddProduct()
+        {
+            await _productRepository.Add(new ProductDTO());
+        }
     }
-    [Fact]
-    public async Task CanAddProduct()
-    {
-        await _productRepository.Add(new ProductDTO());
-    }
-}
 }

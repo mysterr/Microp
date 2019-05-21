@@ -22,7 +22,7 @@ namespace Products.Database
             lifeTime.ApplicationStarted.Register(() =>
             {
                 var subscriber = new AutoSubscriber(bus, subscriptionIdPrefix);
-                subscriber.Subscribe(assembly);
+                subscriber.Subscribe(new Assembly[] { assembly });
             });
 
             lifeTime.ApplicationStopped.Register(() => bus.Dispose());

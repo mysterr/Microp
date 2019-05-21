@@ -1,9 +1,12 @@
 ﻿using Domain.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Products.Database;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -21,11 +24,21 @@ namespace Web.Tests.IntegrationTests
 
         public DAPIIntegrationTests()
         {
+
+            var builder = new ConfigurationBuilder()
+             .SetBasePath(Directory.GetCurrentDirectory())
+             .AddJsonFile("appsettings.test.json", optional: false, reloadOnChange: true)
+             .AddEnvironmentVariables();
+
+            IConfiguration config = builder.Build();
+
             _server = new TestServer(new WebHostBuilder()
                 .UseEnvironment("Development")
+                .UseConfiguration(config)
                 .UseStartup<Startup>());
             _client = _server.CreateClient();
-            _client.BaseAddress = new Uri("http://localhost:8082");
+
+            _client.BaseAddress = new Uri(config.GetSection("DatabaseService:ConnectionString").Value);
         }
         public void Dispose()
         {
@@ -35,7 +48,7 @@ namespace Web.Tests.IntegrationTests
 
         [Theory]
         [InlineData("/api/Products/GetStat")]
-        [InlineData("/api/Products/GetList?name=abc")]
+        [InlineData("/api/Products/GetList/abc")]
         public async Task Get_EndpointsReturnSuccessAndCorrectContentType(string url)
         {
             // Act
@@ -49,16 +62,11 @@ namespace Web.Tests.IntegrationTests
         }
 
         [Fact]
-        public async Task CallGetStatReturnsOk()
-        {
-            var response = await _client.GetAsync("/api/Products/GetStat");
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        }
-        [Fact]
         public async Task CallGetStatReturnsProductStatDTO()
         {
             var response = await _client.GetAsync("/api/Products/GetStat");
             var reply = await response.Content.ReadAsStringAsync();
+            Assert.NotNull(reply);
             var result = JsonConvert.DeserializeObject<ProductsStatDTO>(reply);
             Assert.True(result.ItemsCount > 0);
             Assert.True(result.ProductsCount > 0);
@@ -67,8 +75,9 @@ namespace Web.Tests.IntegrationTests
         [Fact]
         public async Task CallGetListReturnsProductDTOList()
         {
-            var response = await _client.GetAsync("/api/Products/GetList?name=ab");
+            var response = await _client.GetAsync("/api/Products/GetList/ab");
             var reply = await response.Content.ReadAsStringAsync();
+            Assert.NotNull(reply);
             var result = JsonConvert.DeserializeObject<IEnumerable<ProductDTO>>(reply);
             Assert.NotEmpty(result);
             Assert.Contains("ab", result.First().Name);
