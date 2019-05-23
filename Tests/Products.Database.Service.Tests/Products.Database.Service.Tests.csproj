@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DCouple.Mongo" Version="1.6.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="2.2.0" />
@@ -23,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Domain\Domain.csproj" />
+    <ProjectReference Include="..\..\src\Domain\Common.csproj" />
     <ProjectReference Include="..\..\src\services\products.database\Products.Database.csproj" />
   </ItemGroup>
 

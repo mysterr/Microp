@@ -17,10 +17,13 @@
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.7.8" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="5.0.0-rc2" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.0.0-rc2" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.0.0-rc2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\..\Domain\Common.csproj" />
   </ItemGroup>
 
 </Project>

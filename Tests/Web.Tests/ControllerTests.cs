@@ -10,6 +10,7 @@ using System.Linq;
 using Web.Infrastructure;
 using Moq;
 using System.Net.Http;
+using Microsoft.Extensions.Configuration;
 
 namespace Web.Tests
 {
@@ -26,8 +27,7 @@ namespace Web.Tests
             _mock.Setup(r => r.Get("Comp")).ReturnsAsync(new List<Product> { new Product { Name = "Computer", Count = 10, Price = 33.33M } });
             //_mock.Setup(r => r.Get(It.Is<string>(s=>s.Contains("omp")))).ReturnsAsync(new List<Product> { new Product { Name = "Computer", Count = 10, Price = 33.33M } });
             _controller = new HomeController(_mock.Object);
-            //_controller = new HomeController(new ProductRepository());
-            //_ = _controller.Add(new Product { Name = "Computer", Count = 10, Price = 33.33M });
+
         }
         [Fact]
         public async Task Index_ReturnsAViewResult_WithProductsSummary()
@@ -235,11 +235,11 @@ namespace Web.Tests
             Assert.True(viewResult.ViewData.ContainsKey("message"));
             Assert.Equal($"Product {name} is added sucessfully", viewResult.ViewData["message"]);
         }
-        [Fact]
+        [Fact(Skip ="go to integration")]
         public async Task AddProductActuallyAdded()
         {
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            var controller = new HomeController(new ProductRepository(mockHttpClientFactory.Object));
+            var controller = new HomeController(new ProductRepository(mockHttpClientFactory.Object, new Mock<IConfiguration>().Object));
             var product = new Product("Unic product name", 10, 15.5M);
 
             var result = await controller.Add(product);

@@ -29,7 +29,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Products.Database.Service.T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web.Tests", "Tests\Web.Tests\Web.Tests.csproj", "{21697063-54C6-435C-82DB-2058867D159B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "src\Domain\Domain.csproj", "{28597E9C-83D7-4AB5-A55B-0A07FB7EE200}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "src\Domain\Common.csproj", "{28597E9C-83D7-4AB5-A55B-0A07FB7EE200}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

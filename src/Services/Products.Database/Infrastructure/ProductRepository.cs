@@ -75,7 +75,10 @@ namespace Products.Database.Infrastructure
             try
             {
                 var products = await _context.Products.FindAsync(filter);
-                return _mapper.Map<IEnumerable<ProductDTO>>(products);
+                if (products.Any())
+                    return _mapper.Map<IEnumerable<ProductDTO>>(products);
+                else
+                    return new List<ProductDTO>();
             }
             catch (Exception ex)
             {
@@ -92,7 +95,7 @@ namespace Products.Database.Infrastructure
             {
                 await _context.Products.InsertOneAsync(product);
             }
-            catch (Exception e)
+            catch 
             {
                 return false;
             }

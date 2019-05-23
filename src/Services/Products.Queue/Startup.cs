@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Products.Queue.Infrastructure;
 
 namespace Products.Queue
 {
@@ -28,6 +29,11 @@ namespace Products.Queue
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddSingleton(RabbitHutch.CreateBus(Configuration["RabbitConnection:ConnectionString"]));
+            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Queue.Database", Version = "v1" });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -45,6 +51,11 @@ namespace Products.Queue
 
             app.UseHttpsRedirection();
             app.UseMvc();
+            app.UseSwagger().UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Queue.Database");
+                //c.ConfigureOAuth2("swagger", "secret".Sha256(), "swagger");
+            });
         }
     }
 }

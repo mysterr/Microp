@@ -1,42 +1,38 @@
 ﻿using Domain.Models;
-using EasyNetQ;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;
-using Web.Controllers;
-using Web.Infrastructure;
 using Xunit;
-using Microsoft.Extensions.Configuration.FileExtensions;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.AspNetCore.Hosting;
 using System.Net.Http;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Net;
+using Products.Queue;
 
-namespace Web.Tests.IntegrationTests
+namespace IntegrationTests
 {
-    public class QAPITestsInteg : IDisposable
+    public class QAPIIntegrationTests : IDisposable
     {
         private readonly HttpClient _client;
         private readonly TestServer _server;
 
-        public QAPITestsInteg()
+        public QAPIIntegrationTests()
         {
-            _server = new TestServer(new WebHostBuilder()
-                .UseEnvironment("Development")
-                .UseStartup<Startup>());
-            
-            _client = _server.CreateClient();
-
             var builder = new ConfigurationBuilder()
-                 .SetBasePath(Directory.GetCurrentDirectory())
-                 .AddJsonFile("appsettings.test.json", optional: false, reloadOnChange: true)
-                 .AddEnvironmentVariables();
+             .SetBasePath(Directory.GetCurrentDirectory())
+             .AddJsonFile("appsettings.test.json", optional: false, reloadOnChange: true)
+             .AddEnvironmentVariables();
 
             IConfiguration config = builder.Build();
 
-            _client.BaseAddress = new Uri(config.GetSection("QueueService:ConnectionString").Value);
+            _server = new TestServer(new WebHostBuilder()
+                .UseEnvironment("Development")
+                .UseConfiguration(config)
+                .UseStartup<Startup>());
+            _client = _server.CreateClient();
+
         }
         public void Dispose()
         {

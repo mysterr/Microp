@@ -14,7 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Web.Tests.IntegrationTests
+namespace IntegrationTests
 {
     [Collection("Integration Tests")]
     public class DAPIIntegrationTests : IDisposable //: IClassFixture<WebApplicationFactory<Products.Startup>>

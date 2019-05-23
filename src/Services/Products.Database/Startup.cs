@@ -70,14 +70,14 @@ namespace Products.Database
                 app.UseHsts();
             }
             //app.UseCors("CorsPolicy");
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
             app.UseMvc();
             app.UseSwagger().UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Products.Database");
                 //c.ConfigureOAuth2("swagger", "secret".Sha256(), "swagger");
             });
-            app.UseSubscribe("MessageService", Assembly.GetExecutingAssembly());
+            app.UseSubscribe("ProductMessageService", Assembly.GetExecutingAssembly());
         }
     }
 }

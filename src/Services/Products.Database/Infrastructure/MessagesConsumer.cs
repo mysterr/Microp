@@ -17,6 +17,7 @@ namespace Products.Database.Infrastructure
         {
             _productRepository = productRepository;
         }
+        [AutoSubscriberConsumer(SubscriptionId = "ProductMessageService")]
         [ForTopic("product.add")]
         public async Task ConsumeAsync(ProductDTO product)
         {

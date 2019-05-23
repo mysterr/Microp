@@ -21,23 +21,20 @@ namespace Services.Tests
     public class DRepositoryTest
     {
         private readonly IProductRepository _productRepository;
-        private readonly Mock<ProductsDbContext> _contextMock;
-        private readonly Mock<IMapper> _mapperMock;
 
         public DRepositoryTest()
         {
-            //var option = new Mock<IOptions<Settings>>();
-            //var myOptions = new MyOptions();
-            //option.Setup(o => o.Value).Returns(myOptions.Value);
             var productList = new List<Product>
             {
                 new Product { Id = new Guid(), Name = "abcde", Count = 2, Price = 13M },
                 new Product { Id = new Guid(), Name = "hello", Count = 8, Price = 2.5M }
             };
 
-            _contextMock = new Mock<ProductsDbContext>();
+            var contextMock = new Mock<ProductsDbContext>();
+            //var databaseMock = new Mock<IMongoDatabase>();
             var mongoColl = new Mock<IMongoCollection<Product>>();
-
+            //databaseMock.Setup(m => m.GetCollection<Product>("Product", null))
+            //    .Returns(mongoColl.Object);
 
             var cursorMock = new Mock<IAsyncCursor<Product>>();
             cursorMock.Setup(x => x.Current).Returns(productList);
@@ -48,11 +45,11 @@ namespace Services.Tests
             // need to mock Aggregate
             //  var mongoAggr = new Mock<IAggregateFluent<Product>>();
 
-            _contextMock.Setup(c => c.Products)
+            contextMock.Setup(c => c.Products)
                 .Returns(mongoColl.Object);
 
-            _mapperMock = new Mock<IMapper>();
-            _productRepository = new ProductRepository(_contextMock.Object, _mapperMock.Object);
+            var mapperMock = new Mock<IMapper>();
+            _productRepository = new ProductRepository(contextMock.Object, mapperMock.Object);
         }
 
         [Fact]

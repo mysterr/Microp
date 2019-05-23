@@ -8,13 +8,12 @@ namespace Products.Database.Data
     public class ProductsDbContext 
     {
         private readonly IMongoDatabase _database;
-
         virtual public IMongoCollection<Product> Products { get; }
-
         public ProductsDbContext()
         {
-            // for testing only
+
         }
+
         public ProductsDbContext(IOptions<Settings> settings)
         {
             try

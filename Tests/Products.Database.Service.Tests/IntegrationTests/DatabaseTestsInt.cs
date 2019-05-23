@@ -16,7 +16,7 @@ using System.IO;
 using Domain.Models;
 using AutoMapper;
 
-namespace QDatabaseTests
+namespace DatabaseIntegrationTests
 {
     public class MyOptions : IOptions<Settings>
     {
@@ -44,16 +44,14 @@ namespace QDatabaseTests
 
         public MongoRepositoryTest()
         {
-            //var option = new Mock<IOptions<Settings>>();
-            //var myOptions = new MyOptions();
-            //option.Setup(o => o.Value).Returns(myOptions.Value);
             var productList = new List<Product>
             {
                 new Product { Id = new Guid(), Name = "abcde", Count = 2, Price = 13M },
                 new Product { Id = new Guid(), Name = "hello", Count = 8, Price = 2.5M }
             };
 
-            var context = new ProductsDbContext();
+            var options = new MyOptions();
+            var context = new ProductsDbContext(options);
             var mockMapper = new MapperConfiguration(cfg =>
             {
                 cfg.AddProfile(new DomainProfile());

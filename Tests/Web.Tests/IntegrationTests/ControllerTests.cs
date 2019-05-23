@@ -36,7 +36,6 @@ namespace Web.Tests.IntegrationTests
              .AddEnvironmentVariables();
 
             IConfiguration config = builder.Build();
-            _client.BaseAddress = new Uri(config.GetSection("DatabaseService:ConnectionString").Value);
         }
         public void Dispose()
         {
