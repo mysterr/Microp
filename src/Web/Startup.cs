@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -39,7 +43,23 @@ namespace Web
                 //.AddApplicationPart((typeof(Web.Controllers.HomeController).Assembly));
 
             services.AddSingleton<IRepository<Product>,ProductRepository>();
-            services.AddHttpClient();
+            services.AddHttpClient("ProductsClient", client => {
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            }).ConfigurePrimaryHttpMessageHandler(() =>
+            {
+                var cookieContainer = new CookieContainer();
+                var handler = new HttpClientHandler
+                {
+                    CookieContainer = cookieContainer,
+                    ClientCertificateOptions = ClientCertificateOption.Manual,
+                    // ignore SSL check 
+                    ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) => true
+            };
+                //handler.ClientCertificates.Add(certificate);
+                handler.ClientCertificates.Clear();
+                return handler;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

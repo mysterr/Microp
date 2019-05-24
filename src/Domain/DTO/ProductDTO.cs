@@ -1,6 +1,9 @@
 ﻿
+using EasyNetQ;
+
 namespace Domain.Models
 {
+    [Queue("product.q", ExchangeName = "product.ex")]
     public class ProductDTO
     {
         public string Name { get; set; }

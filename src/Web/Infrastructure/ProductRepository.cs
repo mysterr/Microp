@@ -4,8 +4,11 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Web.Models;
@@ -15,7 +18,8 @@ namespace Web.Infrastructure
     public class ProductRepository : IRepository<Product>
     {
         private readonly IHttpClientFactory _clientFactory;
-        private readonly HttpClient _client;
+        private readonly HttpClient _dClient;
+        private readonly HttpClient _qClient;
         private readonly IConfiguration _configuration;
         private readonly string _DServiceBaseUrl;
         private readonly string _QServiceBaseUrl;
@@ -25,9 +29,12 @@ namespace Web.Infrastructure
         {
             _clientFactory = clientFactory;
             _configuration = configuration;
-            _client = _clientFactory.CreateClient();
+            _dClient = _clientFactory.CreateClient("ProductsClient");
+            _qClient = _clientFactory.CreateClient("ProductsClient");
             _DServiceBaseUrl = configuration.GetSection("DatabaseService:ConnectionString").Value;
             _QServiceBaseUrl = configuration.GetSection("QueueService:ConnectionString").Value;
+            _dClient.BaseAddress = new Uri(_DServiceBaseUrl);
+            _qClient.BaseAddress = new Uri(_QServiceBaseUrl);
         }
         public async Task Create(Product item)
         {
@@ -38,20 +45,21 @@ namespace Web.Infrastructure
                 Price = item.Price
             };
 
-            var content = new StringContent(JsonConvert.SerializeObject(productDTO), Encoding.UTF8, "application/json");
-            //content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            var uri = new Uri($"{_QServiceBaseUrl}/api/Products");
-
-            await _client.PostAsync(uri, content);
+            await _qClient.PostAsJsonAsync("/api/Products", productDTO);
         }
 
         public async Task<IEnumerable<Product>> Get(string name)
-        {
-            //var res = await Task.Run(() => _products.Where(s => s.Name.Contains(name??"")));
-            var response = await _client.GetAsync($"{_DServiceBaseUrl}/api/Products/{name}");
-            var content = await response.Content.ReadAsStringAsync();
-            var res = JsonConvert.DeserializeObject<IEnumerable<Product>>(content);
-            return res;
+        {            
+            try
+            {
+                var response = await _dClient.GetAsync($"/api/Products/{name}");
+                var res = await response.Content.ReadAsAsync<IEnumerable<Product>>();
+                return res;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         public async Task<int> GetCount()

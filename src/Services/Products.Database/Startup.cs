@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using Domain.Models;
 using EasyNetQ;
+using EasyNetQ.AutoSubscribe;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +11,9 @@ using Products.Database.Data;
 using Products.Database.Domain;
 using Products.Database.Infrastructure;
 using Products.Database.Model;
+using System.Net;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Products.Database
 {
@@ -77,7 +81,10 @@ namespace Products.Database
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Products.Database");
                 //c.ConfigureOAuth2("swagger", "secret".Sha256(), "swagger");
             });
-            app.UseSubscribe("ProductMessageService", Assembly.GetExecutingAssembly());
+            //app.UseSubscribe("ProductMessageService", Assembly.GetExecutingAssembly());
+            var bus = RabbitHutch.CreateBus(Configuration["RabbitConnection:ConnectionString"]);
+            var subscriber = new AutoSubscriber(bus, "ProductMessageService");
+            subscriber.Subscribe(Assembly.GetExecutingAssembly());
         }
     }
 }

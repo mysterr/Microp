@@ -50,7 +50,7 @@ namespace Web.Controllers
             else
             {
                 var result = await _repo.Get(searchstring);
-                if (result.Count() == 0)
+                if (result == null || result.Count() == 0)
                     ViewData["message"] = "Product not found";
 
                 return View(result);
