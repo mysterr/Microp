@@ -17,6 +17,7 @@ using Xunit;
 namespace IntegrationTests
 {
     [Collection("Integration Tests")]
+    [Trait("Category", "Integration")]
     public class DAPIIntegrationTests : IDisposable //: IClassFixture<WebApplicationFactory<Products.Startup>>
     {
         private readonly HttpClient _client;

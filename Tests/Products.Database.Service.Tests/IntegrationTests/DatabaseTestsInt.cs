@@ -38,6 +38,7 @@ namespace DatabaseIntegrationTests
     }
 
     [Collection("Integration Tests")]
+    [Trait("Category", "Integration")]
     public class MongoRepositoryTest
     {
         private readonly IProductRepository _productRepository;

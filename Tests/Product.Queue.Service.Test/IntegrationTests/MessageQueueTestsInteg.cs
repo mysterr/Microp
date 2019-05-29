@@ -9,6 +9,7 @@ using Xunit;
 
 namespace QIntegrationTests
 {
+    [Trait("Category", "Integration")]
     public class MessageQueueTestsInteg : IDisposable
     {
         private readonly ProductsController _productController;

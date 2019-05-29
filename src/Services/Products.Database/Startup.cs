@@ -11,6 +11,7 @@ using Products.Database.Data;
 using Products.Database.Domain;
 using Products.Database.Infrastructure;
 using Products.Database.Model;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -30,8 +31,8 @@ namespace Products.Database
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            services.AddScoped<IProductService, ProductService>();
-            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<ProductService>();
+            services.AddScoped<ProductRepository>();
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
             services.AddSwaggerGen(c =>
             {
@@ -44,6 +45,10 @@ namespace Products.Database
             });
             services.AddScoped<ProductsDbContext>();
             services.AddSingleton(RabbitHutch.CreateBus(Configuration.GetSection("RabbitConnection:ConnectionString").Value));
+            services.AddSingleton<MessageDispatcher>();
+            services.AddSingleton<MessagesConsumer>();
+
+
             //            services.AddDbContext<ProductsDbContext>
             //options.UseMySQL(
             //    Configuration.GetConnectionString("DefaultConnection")),
@@ -81,10 +86,16 @@ namespace Products.Database
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Products.Database");
                 //c.ConfigureOAuth2("swagger", "secret".Sha256(), "swagger");
             });
-            //app.UseSubscribe("ProductMessageService", Assembly.GetExecutingAssembly());
-            var bus = RabbitHutch.CreateBus(Configuration["RabbitConnection:ConnectionString"]);
+            var bus = app.ApplicationServices.GetService<IBus>();
             var subscriber = new AutoSubscriber(bus, "ProductMessageService");
-            subscriber.Subscribe(Assembly.GetExecutingAssembly());
+            subscriber.AutoSubscriberMessageDispatcher = app.ApplicationServices.GetService<MessageDispatcher>();
+            subscriber.SubscribeAsync(new Assembly[] { Assembly.GetExecutingAssembly() });
+
+            //var consumer = app.ApplicationServices.GetService<MessagesConsumer>();
+            //bus.SubscribeAsync<ProductDTO>("ProductMessageService", async message =>
+            //{
+            //    await consumer.ConsumeAsync(message);
+            //});
         }
     }
 }

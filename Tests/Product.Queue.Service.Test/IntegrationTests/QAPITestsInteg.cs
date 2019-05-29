@@ -13,6 +13,7 @@ using Products.Queue;
 
 namespace IntegrationTests
 {
+    [Trait("Category", "Integration")]
     public class QAPIIntegrationTests : IDisposable
     {
         private readonly HttpClient _client;

@@ -18,6 +18,7 @@ using Xunit;
 namespace Web.Tests.IntegrationTests
 {
     [Collection("Integration Tests")]
+    [Trait("Category", "Integration")]
     public class ControllerIntegrationTests : IDisposable //: IClassFixture<WebApplicationFactory<Products.Startup>>
     {
         private readonly HttpClient _client;

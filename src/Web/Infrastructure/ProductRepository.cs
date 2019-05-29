@@ -52,7 +52,8 @@ namespace Web.Infrastructure
         {            
             try
             {
-                var response = await _dClient.GetAsync($"/api/Products/{name}");
+                var response = await _dClient.GetAsync($"/api/Products/GetList/{name}");
+                response.EnsureSuccessStatusCode();
                 var res = await response.Content.ReadAsAsync<IEnumerable<Product>>();
                 return res;
             }
