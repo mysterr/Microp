@@ -71,10 +71,10 @@ namespace Products.Database.Infrastructure
             {
                 return new List<ProductDTO>();
             }
-            var filter = Builders<Product>.Filter.Where(f => f.Name.Contains(name ?? ""));
+            var filter = Builders<Product>.Filter.Regex(f => f.Name, $"/{name ?? ""}/i");
             try
             {
-                var products = await _context.Products.FindAsync(filter);
+                var products = await _context.Products.Find(filter).ToListAsync();
                 if (products.Any())
                     return _mapper.Map<IEnumerable<ProductDTO>>(products);
                 else

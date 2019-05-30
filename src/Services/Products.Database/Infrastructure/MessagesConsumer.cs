@@ -19,10 +19,10 @@ namespace Products.Database.Infrastructure
         public MessagesConsumer(IServiceProvider serviceProvider)
         {
             var services = serviceProvider.CreateScope().ServiceProvider;
-            _productRepository = services.GetService<IProductRepository>();
+            _productRepository = services.GetRequiredService<IProductRepository>();
         }
 
-        [AutoSubscriberConsumer(SubscriptionId = "ProductMessageService.AddProduct")]
+//        [AutoSubscriberConsumer(SubscriptionId = "ProductMessageService.AddProduct")]
         [ForTopic("product.add")]
         public async Task ConsumeAsync(ProductDTO product, CancellationToken token = default)
         {

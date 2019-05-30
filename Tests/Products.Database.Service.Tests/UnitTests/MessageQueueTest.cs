@@ -1,4 +1,5 @@
 ﻿using Domain.Models;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Products.Database.Infrastructure;
 using System;
@@ -20,15 +21,32 @@ namespace Products.Database.Service.Tests.UnitTests
     public class MessageQueueTest
     {
         private readonly TestedMessageConsumer _messageConsumer;
-        private readonly Mock<IServiceProvider> _serviceMock;
+        private readonly Mock<IServiceProvider> _scopedServiceMock;
         private readonly Mock<IProductRepository> _repoMock;
         public MessageQueueTest()
         {
-            _serviceMock = new Mock<IServiceProvider>();
+            var serviceMock = new Mock<IServiceProvider>();
             _repoMock = new Mock<IProductRepository>();
-            _messageConsumer._productRepository = _repoMock.Object;
 
-            _messageConsumer = new TestedMessageConsumer(_serviceMock.Object);
+            var serviceScope = new Mock<IServiceScope>();
+            serviceScope.Setup(x => x.ServiceProvider).Returns(serviceMock.Object);
+
+            var serviceScopeFactory = new Mock<IServiceScopeFactory>();
+            serviceScopeFactory
+                .Setup(x => x.CreateScope())
+                .Returns(serviceScope.Object);
+
+            serviceMock
+                .Setup(x => x.GetService(typeof(IServiceScopeFactory)))
+                .Returns(serviceScopeFactory.Object);
+
+            serviceMock
+                .Setup(x => x.GetService(typeof(IProductRepository)))
+                .Returns(_repoMock.Object);
+
+
+            _messageConsumer = new TestedMessageConsumer(serviceMock.Object);
+            _messageConsumer._productRepository = _repoMock.Object;
         }
         [Fact]
         public async void CanReceiveMessage()

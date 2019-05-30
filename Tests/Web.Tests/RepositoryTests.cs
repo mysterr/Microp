@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,13 +50,13 @@ namespace Web.Tests
                .Protected()
                .Setup<Task<HttpResponseMessage>>(
                   "SendAsync",
-                  ItExpr.Is<HttpRequestMessage>(r => r.Method == HttpMethod.Get && r.RequestUri.AbsolutePath.StartsWith($"/api/Products/")),
+                  ItExpr.Is<HttpRequestMessage>(r => r.Method == HttpMethod.Get && r.RequestUri.AbsolutePath.StartsWith($"/api/Products/GetList")),
                   ItExpr.IsAny<CancellationToken>()
                )
                .ReturnsAsync(new HttpResponseMessage()
                {
                    StatusCode = HttpStatusCode.OK,
-                   Content = new StringContent(JsonConvert.SerializeObject(productList)),
+                   Content = new StringContent(JsonConvert.SerializeObject(productList), Encoding.Default, "application/json")
                })
                .Verifiable();
 
@@ -66,12 +67,16 @@ namespace Web.Tests
                   ItExpr.Is<HttpRequestMessage>(r => r.Method == HttpMethod.Post && r.RequestUri.AbsolutePath.StartsWith($"/api/Products")),
                   ItExpr.IsAny<CancellationToken>()
                )
+               .ReturnsAsync(new HttpResponseMessage()
+               {
+                   StatusCode = HttpStatusCode.OK,
+               })
                .Verifiable();
 
             // use real http client with mocked handler here
             _httpClient = new HttpClient(_handlerMock.Object);
             _mockClientFactory = new Mock<IHttpClientFactory>();
-            _mockClientFactory.Setup(c => c.CreateClient("")).Returns(_httpClient);
+            _mockClientFactory.Setup(c => c.CreateClient("ProductsClient")).Returns(_httpClient);
             _productRepository = new ProductRepository(_mockClientFactory.Object, config);
         }
 
@@ -86,7 +91,7 @@ namespace Web.Tests
             _handlerMock.Protected().Verify(
                "SendAsync",
                Times.Once(), 
-               ItExpr.Is<HttpRequestMessage>(r => r.Method == HttpMethod.Get && r.RequestUri.AbsolutePath.StartsWith($"/api/Products/")),
+               ItExpr.Is<HttpRequestMessage>(r => r.Method == HttpMethod.Get && r.RequestUri.AbsolutePath.StartsWith($"/api/Products/GetList")),
                ItExpr.IsAny<CancellationToken>()
             );
         }
@@ -105,7 +110,7 @@ namespace Web.Tests
             _handlerMock.Protected().Verify(
                "SendAsync",
                Times.Once(),
-               ItExpr.Is<HttpRequestMessage>(r => r.Method == HttpMethod.Post && r.Method == HttpMethod.Post && r.RequestUri.AbsolutePath.StartsWith($"/api/Products")),
+               ItExpr.Is<HttpRequestMessage>(r => r.Method == HttpMethod.Post && r.RequestUri.AbsolutePath.StartsWith($"/api/Products")),
                ItExpr.IsAny<CancellationToken>()
             );
         }
