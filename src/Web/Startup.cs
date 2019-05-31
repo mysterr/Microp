@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -36,24 +37,29 @@ namespace Web
             //.AddApplicationPart((typeof(Web.Controllers.HomeController).Assembly));
 
             services.AddSingleton<IRepository<Product>, ProductRepository>();
-            services.AddHttpClient("ProductsClient", client =>
+
+            var handler = new HttpClientHandler
             {
-                client.DefaultRequestHeaders.Clear();
+                CookieContainer = new CookieContainer(),
+                ClientCertificateOptions = ClientCertificateOption.Manual,
+                // ignore SSL check 
+                ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) => true
+            };
+            //handler.ClientCertificates.Add(certificate);
+            handler.ClientCertificates.Clear();
+
+            services.AddHttpClient("ProductsDatabaseClient", client =>
+            {
+                client.BaseAddress = new Uri(Configuration.GetSection("DatabaseService:ConnectionString").Value);
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            }).ConfigurePrimaryHttpMessageHandler(() =>
+            }).ConfigurePrimaryHttpMessageHandler(() => handler);
+
+            services.AddHttpClient("ProductsQueryClient", client =>
             {
-                var cookieContainer = new CookieContainer();
-                var handler = new HttpClientHandler
-                {
-                    CookieContainer = cookieContainer,
-                    ClientCertificateOptions = ClientCertificateOption.Manual,
-                    // ignore SSL check 
-                    ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) => true
-                };
-                //handler.ClientCertificates.Add(certificate);
-                handler.ClientCertificates.Clear();
-                return handler;
-            });
+                client.BaseAddress = new Uri(Configuration.GetSection("QueueService:ConnectionString").Value);
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            }).ConfigurePrimaryHttpMessageHandler(() => handler);
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

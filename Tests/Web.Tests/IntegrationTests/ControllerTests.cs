@@ -32,7 +32,6 @@ namespace Web.Tests.IntegrationTests
             _server = new TestServer(new WebHostBuilder()
                 .UseEnvironment("Development")
                 .UseStartup<Startup>()
-                .ConfigureServices(s => ServicePointManager.ServerCertificateValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) => true)
                 .UseConfiguration(config));
             _client = _server.CreateClient();
 
