@@ -1,18 +1,14 @@
-﻿using Domain.Models;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using Web.Models;
 using Xunit;
 
 namespace Web.Tests.IntegrationTests
@@ -26,17 +22,20 @@ namespace Web.Tests.IntegrationTests
 
         public ControllerIntegrationTests()
         {
-            _server = new TestServer(new WebHostBuilder()
-                .UseEnvironment("Development")
-                .UseStartup<Startup>());
-            _client = _server.CreateClient();
-
             var builder = new ConfigurationBuilder()
              .SetBasePath(Directory.GetCurrentDirectory())
              .AddJsonFile("appsettings.test.json", optional: false, reloadOnChange: true)
              .AddEnvironmentVariables();
 
             IConfiguration config = builder.Build();
+
+            _server = new TestServer(new WebHostBuilder()
+                .UseEnvironment("Development")
+                .UseStartup<Startup>()
+                .ConfigureServices(s => ServicePointManager.ServerCertificateValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) => true)
+                .UseConfiguration(config));
+            _client = _server.CreateClient();
+
         }
         public void Dispose()
         {
@@ -78,8 +77,7 @@ namespace Web.Tests.IntegrationTests
         public async Task Search_WithParam_ReturnsOk()
         {
             // Act
-            var content = new StringContent("searchstring=test", Encoding.UTF8);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+            var content = new StringContent("searchstring=test", Encoding.Default, "application/x-www-form-urlencoded");
 
             var response = await _client.PostAsync("Home/Search", content);
 
@@ -91,8 +89,7 @@ namespace Web.Tests.IntegrationTests
         public async Task Search_WithEmptyParam_ReturnsBadRequest()
         {
             // Act
-            var content = new StringContent("", Encoding.UTF8);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+            var content = new StringContent("", Encoding.Default, "application/x-www-form-urlencoded");
 
             var response = await _client.PostAsync("Home/Search", content);
 

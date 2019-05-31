@@ -1,20 +1,15 @@
 ﻿using AutoMapper;
+using Domain.Models;
+using MongoDB.Driver;
 using Moq;
+using Products.Database.Data;
+using Products.Database.Infrastructure;
+using Products.Database.Model;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using MongoDB.Driver;
-using Microsoft.Extensions.Options;
-using Products.Database.Model;
-using Microsoft.Extensions.Configuration;
-using System.IO;
-using Products.Database.Infrastructure;
-using Products.Database.Data;
-using System.Threading;
-using Domain.Models;
 
 namespace Services.Tests
 {

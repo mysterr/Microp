@@ -2,17 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Products.Database.Controllers;
-using Products.Database.Data;
 using Products.Database.Infrastructure;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Services.Tests
-{    
+{
     public class DAPITests
     {
         private readonly Mock<IProductService> _mock;
@@ -20,7 +17,7 @@ namespace Services.Tests
         public DAPITests()
         {
             _mock = new Mock<IProductService>();
-            _mock.Setup(r => r.GetStat()).ReturnsAsync(new ProductsStatDTO { ItemsCount = 10, ProductsCount = 2, Sum = 15.5M});
+            _mock.Setup(r => r.GetStat()).ReturnsAsync(new ProductsStatDTO { ItemsCount = 10, ProductsCount = 2, Sum = 15.5M });
             var productList = new List<ProductDTO>();
             productList.Add(new ProductDTO { Name = "abcde", Count = 2, Price = 13M });
             productList.Add(new ProductDTO { Name = "hello", Count = 8, Price = 2.5M });
@@ -42,7 +39,7 @@ namespace Services.Tests
         public async Task GetStatReturnsOkObjectResultOfProductsStatDTO()
         {
             var result = await _controller.GetStat();
-            
+
             var res = Assert.IsType<OkObjectResult>(result);
 
             Assert.NotNull(res);

@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using Web.Infrastructure;
 using Web.Models;
 
@@ -40,10 +33,11 @@ namespace Web
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-                //.AddApplicationPart((typeof(Web.Controllers.HomeController).Assembly));
+            //.AddApplicationPart((typeof(Web.Controllers.HomeController).Assembly));
 
-            services.AddSingleton<IRepository<Product>,ProductRepository>();
-            services.AddHttpClient("ProductsClient", client => {
+            services.AddSingleton<IRepository<Product>, ProductRepository>();
+            services.AddHttpClient("ProductsClient", client =>
+            {
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             }).ConfigurePrimaryHttpMessageHandler(() =>
@@ -55,7 +49,7 @@ namespace Web
                     ClientCertificateOptions = ClientCertificateOption.Manual,
                     // ignore SSL check 
                     ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) => true
-            };
+                };
                 //handler.ClientCertificates.Add(certificate);
                 handler.ClientCertificates.Clear();
                 return handler;

@@ -1,14 +1,13 @@
 ﻿using AutoMapper;
-using Products.Database.Data;
+using Domain.Models;
 using Microsoft.EntityFrameworkCore;
-using Products.Database.Model;
 using MongoDB.Driver;
+using Products.Database.Data;
+using Products.Database.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Domain.Models;
 
 namespace Products.Database.Infrastructure
 {
@@ -95,7 +94,7 @@ namespace Products.Database.Infrastructure
             {
                 await _context.Products.InsertOneAsync(product);
             }
-            catch 
+            catch
             {
                 return false;
             }

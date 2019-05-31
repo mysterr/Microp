@@ -1,12 +1,8 @@
-﻿using Products.Queue.Controllers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
-using Products.Queue.Infrastructure;
+﻿using Domain.Models;
 using Moq;
-using Domain.Models;
+using Products.Queue.Controllers;
+using Products.Queue.Infrastructure;
+using Xunit;
 
 namespace Products.Queue.Service.Test.UnitTests
 {

@@ -5,7 +5,7 @@ using System;
 
 namespace Products.Database.Data
 {
-    public class ProductsDbContext 
+    public class ProductsDbContext
     {
         private readonly IMongoDatabase _database;
         virtual public IMongoCollection<Product> Products { get; }

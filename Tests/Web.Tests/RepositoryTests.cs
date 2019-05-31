@@ -2,12 +2,10 @@
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -90,7 +88,7 @@ namespace Web.Tests
             _mockClientFactory.VerifyAll();
             _handlerMock.Protected().Verify(
                "SendAsync",
-               Times.Once(), 
+               Times.Once(),
                ItExpr.Is<HttpRequestMessage>(r => r.Method == HttpMethod.Get && r.RequestUri.AbsolutePath.StartsWith($"/api/Products/GetList")),
                ItExpr.IsAny<CancellationToken>()
             );

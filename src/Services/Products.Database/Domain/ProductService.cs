@@ -1,8 +1,6 @@
 ﻿using Domain.Models;
-using Products.Database.Data;
 using Products.Database.Infrastructure;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Products.Database.Domain
@@ -19,13 +17,13 @@ namespace Products.Database.Domain
         public async Task<bool> Add(ProductDTO product)
         {
             var res = await _productRepository.Add(product);
-           return res;
+            return res;
         }
 
         public async Task<IEnumerable<ProductDTO>> GetList(string name)
         {
             var res = await _productRepository.GetList(name);
-            return res; 
+            return res;
         }
 
         public async Task<ProductsStatDTO> GetStat()

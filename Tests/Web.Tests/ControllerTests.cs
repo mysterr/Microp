@@ -1,16 +1,14 @@
-using System;
-using Xunit;
 using Microsoft.AspNetCore.Mvc;
-using Web.Models;
-using Web.Controllers;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using Web.ViewModels;
-using System.Linq;
-using Web.Infrastructure;
-using Moq;
-using System.Net.Http;
 using Microsoft.Extensions.Configuration;
+using Moq;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Web.Controllers;
+using Web.Infrastructure;
+using Web.Models;
+using Web.ViewModels;
+using Xunit;
 
 namespace Web.Tests
 {
@@ -94,7 +92,7 @@ namespace Web.Tests
             var viewResult = Assert.IsType<ViewResult>(result);
             var listResult = Assert.IsAssignableFrom<IEnumerable<Product>>(
                 viewResult.Model);
-            Assert.All(listResult, s=>s.Name.Contains("Comp"));
+            Assert.All(listResult, s => s.Name.Contains("Comp"));
         }
         [Fact]
         public async Task Search_ReturnsNotFoundWhenNotFound()
@@ -235,7 +233,7 @@ namespace Web.Tests
             Assert.True(viewResult.ViewData.ContainsKey("message"));
             Assert.Equal($"Product {name} is added sucessfully", viewResult.ViewData["message"]);
         }
-        [Fact(Skip ="go to integration")]
+        [Fact(Skip = "go to integration")]
         public async Task AddProductActuallyAdded()
         {
             var mockHttpClientFactory = new Mock<IHttpClientFactory>();

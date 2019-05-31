@@ -1,12 +1,9 @@
 ﻿using Domain.Models;
 using Moq;
-using Products.Database.Data;
 using Products.Database.Domain;
 using Products.Database.Infrastructure;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 

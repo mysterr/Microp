@@ -10,7 +10,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -76,12 +75,12 @@ namespace IntegrationTests
         [Fact]
         public async Task CallGetListReturnsProductDTOList()
         {
-            var response = await _client.GetAsync("/api/Products/GetList/ab");
+            var response = await _client.GetAsync("/api/Products/GetList/test");
             var reply = await response.Content.ReadAsStringAsync();
             Assert.NotNull(reply);
             var result = JsonConvert.DeserializeObject<IEnumerable<ProductDTO>>(reply);
             Assert.NotEmpty(result);
-            Assert.Contains("ab", result.First().Name);
+            Assert.Contains("test", result.First().Name, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

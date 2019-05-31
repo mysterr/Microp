@@ -2,9 +2,6 @@
 using EasyNetQ;
 using Moq;
 using Products.Queue.Infrastructure;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace Products.Queue.Service.Test.UnitTests

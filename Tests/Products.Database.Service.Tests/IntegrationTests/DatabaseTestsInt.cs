@@ -1,20 +1,15 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Xunit;
+using AutoMapper;
+using Domain.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using Products.Database.Model;
-using Products.Database.Infrastructure;
 using Products.Database.Data;
+using Products.Database.Infrastructure;
+using Products.Database.Model;
+using System;
+using System.Collections.Generic;
 using System.IO;
-using Domain.Models;
-using AutoMapper;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace DatabaseIntegrationTests
 {

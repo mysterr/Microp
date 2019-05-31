@@ -1,5 +1,4 @@
 ﻿using Domain.Models;
-using Products.Database.Data;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

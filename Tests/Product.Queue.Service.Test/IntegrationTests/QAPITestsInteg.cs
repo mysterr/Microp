@@ -1,15 +1,15 @@
 ﻿using Domain.Models;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using Products.Queue;
 using System;
 using System.IO;
-using Xunit;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.AspNetCore.Hosting;
-using System.Net.Http;
-using Newtonsoft.Json;
-using System.Net.Http.Headers;
 using System.Net;
-using Products.Queue;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using Xunit;
 
 namespace IntegrationTests
 {

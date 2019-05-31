@@ -3,9 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Products.Database.Infrastructure;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Products.Database.Service.Tests.UnitTests
@@ -13,7 +10,7 @@ namespace Products.Database.Service.Tests.UnitTests
     public class TestedMessageConsumer : MessagesConsumer
     {
         public IProductRepository _productRepository;
-        public TestedMessageConsumer(IServiceProvider provider): base(provider)
+        public TestedMessageConsumer(IServiceProvider provider) : base(provider)
         {
 
         }

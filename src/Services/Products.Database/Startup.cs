@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Domain.Models;
 using EasyNetQ;
 using EasyNetQ.AutoSubscribe;
 using Microsoft.AspNetCore.Builder;
@@ -11,10 +10,7 @@ using Products.Database.Data;
 using Products.Database.Domain;
 using Products.Database.Infrastructure;
 using Products.Database.Model;
-using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace Products.Database
 {
@@ -36,7 +32,7 @@ namespace Products.Database
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo{ Title = "Products.Database", Version = "v1" });
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Products.Database", Version = "v1" });
             });
             services.Configure<Settings>(options =>
             {
