@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Products.Database.Infrastructure;
+using System;
 using System.Threading.Tasks;
 
 namespace Products.Database.Controllers
@@ -18,15 +19,29 @@ namespace Products.Database.Controllers
         [HttpGet]
         public async Task<IActionResult> GetStat()
         {
-            var result = await _productService.GetStat();
-            return Ok(result);
+            try
+            {
+                var result = await _productService.GetStat();
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpGet("{name}")]
         public async Task<IActionResult> GetList(string name)
         {
-            var result = await _productService.GetList(name);
-            return Ok(result);
+            try
+            {
+                var result = await _productService.GetList(name);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }

@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="EasyNetQ" Version="3.5.0" />
+    <PackageReference Include="EasyNetQ" Version="3.6.0-alpha0036" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.2.4" />
@@ -33,6 +33,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Domain\Common.csproj" />
+    <ProjectReference Include="..\..\src\services\products.database\Products.Database.csproj" />
+    <ProjectReference Include="..\..\src\Services\Products.Queue\Products.Queue.csproj" />
     <ProjectReference Include="..\..\src\Web\Web.csproj" />
   </ItemGroup>
 

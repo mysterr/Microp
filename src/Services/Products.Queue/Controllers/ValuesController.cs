@@ -13,7 +13,7 @@ namespace Products.Queue.Controllers
 
         public ProductsController(IProductRepository productRepository)
         {
-            this._productRepository = productRepository;
+            _productRepository = productRepository;
         }
 
 

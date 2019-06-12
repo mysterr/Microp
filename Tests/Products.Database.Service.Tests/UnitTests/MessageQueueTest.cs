@@ -18,7 +18,6 @@ namespace Products.Database.Service.Tests.UnitTests
     public class MessageQueueTest
     {
         private readonly TestedMessageConsumer _messageConsumer;
-        private readonly Mock<IServiceProvider> _scopedServiceMock;
         private readonly Mock<IProductRepository> _repoMock;
         public MessageQueueTest()
         {

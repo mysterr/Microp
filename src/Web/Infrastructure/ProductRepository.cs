@@ -1,5 +1,7 @@
-﻿using Domain.Models;
+﻿using AutoMapper;
+using Domain.Models;
 using Microsoft.Extensions.Configuration;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,12 +16,15 @@ namespace Web.Infrastructure
     {
         private readonly IHttpClientFactory _clientFactory;
         private readonly IConfiguration _configuration;
+        private readonly IMapper _mapper;
+        private readonly IDatabase db;
 
-        List<Product> _products = new List<Product>();
-        public ProductRepository(IHttpClientFactory clientFactory, IConfiguration configuration)
+        public ProductRepository(IHttpClientFactory clientFactory, IConfiguration configuration, IMapper mapper, IConnectionMultiplexer connectionMultiplexor)
         {
             _clientFactory = clientFactory;
             _configuration = configuration;
+            _mapper = mapper;
+            db = connectionMultiplexor.GetDatabase();
         }
         public async Task Create(Product item)
         {
@@ -53,8 +58,8 @@ namespace Web.Infrastructure
                 {
                     var response = await dClient.GetAsync($"/api/Products/GetList/{name}");
                     response.EnsureSuccessStatusCode();
-                    var res = await response.Content.ReadAsAsync<IEnumerable<Product>>();
-                    return res;
+                    var products = await response.Content.ReadAsAsync<IEnumerable<ProductDTO>>();
+                    return _mapper.Map<IEnumerable<Product>>(products); 
                 }
                 catch (Exception e)
                 {
@@ -65,20 +70,27 @@ namespace Web.Infrastructure
 
         public async Task<int> GetCount()
         {
-            var res = await Task.Run(() => _products.Count());
-            return res;
+            return 0;
         }
 
         public async Task<decimal> GetSum()
         {
-            var res = await Task.Run(() => _products.Sum(s => s.Price));
-            return res;
+            return 0;
         }
 
         public async Task<int> GetTotal()
         {
-            var res = await Task.Run(() => _products.Sum(s => s.Count));
-            return res;
+            return 0;
+        }
+
+        public async Task<ProductsStatDTO> GetStat()
+        {
+            return null;
+        }
+
+        public Task UpdateStat(int count, int items, decimal price)
+        {
+            throw new NotImplementedException();
         }
     }
 }

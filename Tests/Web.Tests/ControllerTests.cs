@@ -1,6 +1,8 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using StackExchange.Redis;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -15,16 +17,16 @@ namespace Web.Tests
     public class ControllerTests
     {
         private readonly HomeController _controller;
-        private readonly Mock<IRepository<Product>> _mock;
+        private readonly Mock<IRepository<Product>> _repositoryMock;
         public ControllerTests()
         {
-            _mock = new Mock<IRepository<Product>>();
-            _mock.Setup(r => r.GetCount()).ReturnsAsync(1);
-            _mock.Setup(r => r.GetTotal()).ReturnsAsync(10);
-            _mock.Setup(r => r.GetSum()).ReturnsAsync(33.33M);
-            _mock.Setup(r => r.Get("Comp")).ReturnsAsync(new List<Product> { new Product { Name = "Computer", Count = 10, Price = 33.33M } });
+            _repositoryMock = new Mock<IRepository<Product>>();
+            _repositoryMock.Setup(r => r.GetCount()).ReturnsAsync(1);
+            _repositoryMock.Setup(r => r.GetTotal()).ReturnsAsync(10);
+            _repositoryMock.Setup(r => r.GetSum()).ReturnsAsync(33.33M);
+            _repositoryMock.Setup(r => r.Get("Comp")).ReturnsAsync(new List<Product> { new Product { Name = "Computer", Count = 10, Price = 33.33M } });
             //_mock.Setup(r => r.Get(It.Is<string>(s=>s.Contains("omp")))).ReturnsAsync(new List<Product> { new Product { Name = "Computer", Count = 10, Price = 33.33M } });
-            _controller = new HomeController(_mock.Object);
+            _controller = new HomeController(_repositoryMock.Object);
 
         }
         [Fact]
@@ -54,9 +56,9 @@ namespace Web.Tests
             Assert.Equal(1, productSummaryView.ProductsCount);
             Assert.Equal(10, productSummaryView.ItemsCount);
             Assert.Equal(33.33M, productSummaryView.Sum);
-            _mock.Verify(r => r.GetCount());
-            _mock.Verify(r => r.GetTotal());
-            _mock.Verify(r => r.GetSum());
+            _repositoryMock.Verify(r => r.GetCount());
+            _repositoryMock.Verify(r => r.GetTotal());
+            _repositoryMock.Verify(r => r.GetSum());
         }
 
         [Fact]
@@ -69,7 +71,7 @@ namespace Web.Tests
             var viewResult = Assert.IsType<ViewResult>(result);
             Assert.IsAssignableFrom<IEnumerable<Product>>(
                 viewResult.Model);
-            _mock.Verify(r => r.Get("Comp"));
+            _repositoryMock.Verify(r => r.Get("Comp"));
         }
 
         [Fact]
@@ -108,7 +110,7 @@ namespace Web.Tests
         [Theory]
         [InlineData("")]
         [InlineData("1")]
-        [InlineData("22")]
+        [InlineData("ab")]
         public async Task Search_ReturnsTooShortWhenParamShorterThan3(string value)
         {
             var result = await _controller.Search(value);
@@ -148,6 +150,16 @@ namespace Web.Tests
             Assert.IsType<ViewResult>(result);
         }
         [Fact]
+        public void Add_CallsRepositoryCreate()
+        {
+            var product = new Product("Test prod", 10, 15.5M);
+            var result = _controller.Add(product);
+            Assert.NotNull(result);
+            Assert.IsType<ViewResult>(result);
+            _repositoryMock.Verify(r => r.Create(product));
+        }
+
+        [Fact]
         public async Task AddCommandWithParametersReturnsViewResultAsync()
         {
             var product = new Product("Test prod", 10, 15.5M);
@@ -155,7 +167,7 @@ namespace Web.Tests
             var result = await _controller.Add(product);
             Assert.NotNull(result);
             Assert.IsType<ViewResult>(result);
-            _mock.Verify(r => r.Create(product));
+            _repositoryMock.Verify(r => r.Create(product));
         }
         [Fact]
         public async Task Add_ReturnsBadRequestWhenParamIsNull()
@@ -232,20 +244,6 @@ namespace Web.Tests
             var viewResult = Assert.IsType<ViewResult>(result);
             Assert.True(viewResult.ViewData.ContainsKey("message"));
             Assert.Equal($"Product {name} is added sucessfully", viewResult.ViewData["message"]);
-        }
-        [Fact(Skip = "go to integration")]
-        public async Task AddProductActuallyAdded()
-        {
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            var controller = new HomeController(new ProductRepository(mockHttpClientFactory.Object, new Mock<IConfiguration>().Object));
-            var product = new Product("Unic product name", 10, 15.5M);
-
-            var result = await controller.Add(product);
-            var search = await controller.Search("Unic product name");
-            var viewResult = Assert.IsType<ViewResult>(search);
-            var listResult = Assert.IsAssignableFrom<IEnumerable<Product>>(
-                viewResult.Model);
-            Assert.NotEmpty(listResult);
         }
     }
 

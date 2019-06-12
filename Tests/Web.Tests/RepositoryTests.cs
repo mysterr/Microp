@@ -1,7 +1,11 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using AutoMapper;
+using Domain.Models;
+using Microsoft.Extensions.Configuration;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
+using StackExchange.Redis;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -21,6 +25,7 @@ namespace Web.Tests
         private readonly HttpClient _httpClient;
         private readonly Mock<IHttpClientFactory> _mockClientFactory;
         private readonly Mock<HttpMessageHandler> _handlerMock;
+        private readonly Mock<IDatabase> _databaseMock;
 
         public RepositoryTests()
         {
@@ -73,9 +78,15 @@ namespace Web.Tests
 
             // use real http client with mocked handler here
             _httpClient = new HttpClient(_handlerMock.Object);
+            _httpClient.BaseAddress = new Uri(config.GetSection("DatabaseService:ConnectionString").Value);
             _mockClientFactory = new Mock<IHttpClientFactory>();
-            _mockClientFactory.Setup(c => c.CreateClient("ProductsClient")).Returns(_httpClient);
-            _productRepository = new ProductRepository(_mockClientFactory.Object, config);
+            _mockClientFactory.Setup(c => c.CreateClient("ProductsDatabaseClient")).Returns(_httpClient);
+            _mockClientFactory.Setup(c => c.CreateClient("ProductsQueryClient")).Returns(_httpClient);
+            var mapperMock = new Mock<IMapper>();
+            _databaseMock = new Mock<IDatabase>();
+            var multiplexorMock = new Mock<IConnectionMultiplexer>();
+            multiplexorMock.Setup(m => m.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(_databaseMock.Object);
+            _productRepository = new ProductRepository(_mockClientFactory.Object, config, mapperMock.Object, multiplexorMock.Object);
         }
 
         [Fact]
@@ -83,9 +94,7 @@ namespace Web.Tests
         {
             var result = await _productRepository.Get("abc");
             var res = Assert.IsAssignableFrom<IEnumerable<Product>>(result);
-            Assert.NotEmpty(res);
 
-            _mockClientFactory.VerifyAll();
             _handlerMock.Protected().Verify(
                "SendAsync",
                Times.Once(),
@@ -104,13 +113,57 @@ namespace Web.Tests
                 Price = 10M
             };
             await _productRepository.Create(product);
-            _mockClientFactory.VerifyAll();
+
             _handlerMock.Protected().Verify(
                "SendAsync",
                Times.Once(),
                ItExpr.Is<HttpRequestMessage>(r => r.Method == HttpMethod.Post && r.RequestUri.AbsolutePath.StartsWith($"/api/Products")),
                ItExpr.IsAny<CancellationToken>()
             );
+        }
+
+        [Fact]
+        public async void GetCount_ReturnsInt()
+        {
+            var res = await _productRepository.GetCount();
+            Assert.IsType<int>(res);
+            Assert.NotEqual(0, res);
+            _databaseMock.Verify(d => d.HashGet("products", "count", It.IsAny<CommandFlags>()));
+        }
+
+        [Fact]
+        public async void GetSum_ReturnsInt()
+        {
+            var res = await _productRepository.GetSum();
+            Assert.IsType<decimal>(res);
+            Assert.NotEqual(0, res);
+            _databaseMock.Verify(d => d.HashGet("products", "sum", It.IsAny<CommandFlags>()));
+        }
+
+        [Fact]
+        public async void GetTotal_ReturnsDecimal()
+        {
+            var res = await _productRepository.GetTotal();
+            Assert.IsType<int>(res);
+            Assert.NotEqual(0, res);
+            _databaseMock.Verify(d => d.HashGetAsync("products", "total", It.IsAny<CommandFlags>()));
+        }
+
+        [Fact]
+        public async void GetStat_ReturnsProductStat()
+        {
+            var res = await _productRepository.GetStat();
+            Assert.IsType<ProductsStatDTO>(res);
+           _databaseMock.Verify(d => d.HashGetAllAsync("products", It.IsAny<CommandFlags>()));
+        }
+        
+        [Fact]
+        public async void UpdateStat_CallsIncrementDatabase()
+        {
+            await _productRepository.UpdateStat(1, 12, 33.6M);
+           _databaseMock.Verify(d => d.HashIncrementAsync("products", "count", 1, It.IsAny<CommandFlags>()));
+           _databaseMock.Verify(d => d.HashIncrementAsync("products", "total", 12, It.IsAny<CommandFlags>()));
+           _databaseMock.Verify(d => d.HashIncrementAsync("products", "sum", 12*33.6, It.IsAny<CommandFlags>()));
         }
     }
 }

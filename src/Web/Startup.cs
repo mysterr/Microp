@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,8 +9,11 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Security;
+using System.Reflection;
 using Web.Infrastructure;
 using Web.Models;
+using StackExchange.Redis;
 
 namespace Web
 {
@@ -37,16 +41,27 @@ namespace Web
             //.AddApplicationPart((typeof(Web.Controllers.HomeController).Assembly));
 
             services.AddSingleton<IRepository<Product>, ProductRepository>();
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
+            //services.AddDistributedRedisCache(options => 
+            //    options.Configuration = Configuration.GetSection("Redis:Name").Value);
+            services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(Configuration.GetSection("Redis:ConnectionString").Value));
 
             var handler = new HttpClientHandler
             {
                 CookieContainer = new CookieContainer(),
-                ClientCertificateOptions = ClientCertificateOption.Manual,
                 // ignore SSL check 
-                ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) => true
+                ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) =>
+                {
+                    if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+                    {
+                        System.Diagnostics.Debug.WriteLine(cert);
+                        return true;
+                    }
+                    else
+                        return policyErrors == SslPolicyErrors.None;
+                }
             };
             //handler.ClientCertificates.Add(certificate);
-            handler.ClientCertificates.Clear();
 
             services.AddHttpClient("ProductsDatabaseClient", client =>
             {

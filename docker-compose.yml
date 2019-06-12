@@ -4,28 +4,15 @@ networks:
   demonet:
 
 services:
-  web:
-    image: ${DOCKER_REGISTRY-}web
-    build:
-      context: .
-      dockerfile: src/Web/Dockerfile
-    container_name: web
-    ports:
-      - 8080:80
-    depends_on:
-      - rabbitmq
-      - redis.data
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-    networks:
-      - demonet
-
   products.queue:
     image: ${DOCKER_REGISTRY-}productsqueue
     build:
       context: .
       dockerfile: src/Services/Products.Queue/Dockerfile
     container_name: productsqueue
+    ports:
+      - 8081:80
+      - 44301:443
     depends_on:
       - rabbitmq
     networks:
@@ -37,9 +24,31 @@ services:
       context: .
       dockerfile: src/Services/Products.Database/Dockerfile
     container_name: productsdatabase
+    ports:
+      - 8082:80
+      - 44302:443
     depends_on:
       - rabbitmq
       - mongo.data
+    networks:
+      - demonet
+
+  web:
+    image: ${DOCKER_REGISTRY-}web
+    build:
+      context: .
+      dockerfile: src/Web/Dockerfile
+    container_name: web
+    ports:
+      - 8080:80
+      - 443:443
+    depends_on:
+      - rabbitmq
+      - redis.data
+      - products.database
+      - products.queue
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
     networks:
       - demonet
 
@@ -51,10 +60,14 @@ services:
     container_name: rabbitmq
     networks:
       - demonet
+    volumes:
+      - rabbitdata:/var/lib/rabbitmq
 
   redis.data:
     image: redis 
     container_name: redis
+    ports:
+      - 6379:6379
     networks:
       - demonet
 
@@ -72,7 +85,10 @@ services:
         - 27017:27017
     volumes:
         - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
-        - ./data:/data/db
-    container_name: mongodb
+        - mongodata:/data/db
     networks:
       - demonet
+    container_name: mongodb
+volumes:
+  mongodata:   
+  rabbitdata:
