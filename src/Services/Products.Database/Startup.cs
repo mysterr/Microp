@@ -39,7 +39,7 @@ namespace Products.Database
                 options.ConnectionString = Configuration.GetSection("MongoConnection:ConnectionString").Value;
                 options.Database = Configuration.GetSection("MongoConnection:Database").Value;
             });
-            services.AddScoped<ProductsDbContext>();
+            services.AddScoped<IProductsDbContext, ProductsDbContext>();
             services.AddSingleton(RabbitHutch.CreateBus(Configuration.GetSection("RabbitConnection:ConnectionString").Value));
             services.AddSingleton<MessageDispatcher>();
             services.AddSingleton<MessagesConsumer>();
@@ -83,8 +83,11 @@ namespace Products.Database
                 //c.ConfigureOAuth2("swagger", "secret".Sha256(), "swagger");
             });
             var bus = app.ApplicationServices.GetService<IBus>();
-            var subscriber = new AutoSubscriber(bus, "ProductMessageService");
-            subscriber.AutoSubscriberMessageDispatcher = app.ApplicationServices.GetService<MessageDispatcher>();
+            var subscriber = new AutoSubscriber(bus, "ProductMessageService")
+            {
+                AutoSubscriberMessageDispatcher = app.ApplicationServices.GetService<MessageDispatcher>(),
+            };
+            // -- should use EasyNetQ version from 3.6.0 (3.0-3.5 doesn't work properly)
             subscriber.SubscribeAsync(new Assembly[] { Assembly.GetExecutingAssembly() });
 
             //var consumer = app.ApplicationServices.GetService<MessagesConsumer>();

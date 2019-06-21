@@ -15,14 +15,12 @@ namespace Web.Infrastructure
     public class ProductRepository : IRepository<Product>
     {
         private readonly IHttpClientFactory _clientFactory;
-        private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
         private readonly IDatabase db;
 
-        public ProductRepository(IHttpClientFactory clientFactory, IConfiguration configuration, IMapper mapper, IConnectionMultiplexer connectionMultiplexor)
+        public ProductRepository(IHttpClientFactory clientFactory, IMapper mapper, IConnectionMultiplexer connectionMultiplexor)
         {
             _clientFactory = clientFactory;
-            _configuration = configuration;
             _mapper = mapper;
             db = connectionMultiplexor.GetDatabase();
         }
@@ -39,8 +37,8 @@ namespace Web.Infrastructure
             {
                 try
                 {
-                    var response = await qClient.PostAsJsonAsync("/api/Products", productDTO);
-                    response.EnsureSuccessStatusCode();
+                    using (var response = await qClient.PostAsJsonAsync("/api/Products", productDTO))
+                        response.EnsureSuccessStatusCode();
                 }
                 catch (Exception e)
                 {
@@ -56,10 +54,12 @@ namespace Web.Infrastructure
             {
                 try
                 {
-                    var response = await dClient.GetAsync($"/api/Products/GetList/{name}");
-                    response.EnsureSuccessStatusCode();
-                    var products = await response.Content.ReadAsAsync<IEnumerable<ProductDTO>>();
-                    return _mapper.Map<IEnumerable<Product>>(products); 
+                    using (var response = await dClient.GetAsync($"/api/Products/GetList/{name}"))
+                    {
+                        response.EnsureSuccessStatusCode();
+                        var products = await response.Content.ReadAsAsync<IEnumerable<ProductDTO>>();
+                        return _mapper.Map<IEnumerable<Product>>(products);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -70,27 +70,81 @@ namespace Web.Infrastructure
 
         public async Task<int> GetCount()
         {
-            return 0;
+            var count = await db.HashGetAsync("products", "count");
+            if (count.IsNull)
+            {
+                var productsCount = (await GetStat()).ProductsCount;
+                await db.HashSetAsync("products", "count", productsCount);
+                await db.KeyExpireAsync("products", DateTime.Now.AddDays(1));
+                return productsCount;
+            }
+            if (count.TryParse(out int val))
+                return val;
+            else
+                return 0;
         }
 
         public async Task<decimal> GetSum()
         {
-            return 0;
+            var sum = await db.HashGetAsync("products", "sum");
+            if (sum.IsNull)
+            {
+                var productsSum = (await GetStat()).Sum;
+                await db.HashSetAsync("products", "sum", productsSum.ToString());
+                await db.KeyExpireAsync("products", DateTime.Now.AddDays(1));
+                return productsSum;
+            }
+            if (decimal.TryParse(sum, out decimal val))
+                return val;
+            else
+                return 0;
         }
 
         public async Task<int> GetTotal()
         {
-            return 0;
+            var total = await db.HashGetAsync("products", "items");
+            if (total.IsNull)
+            {
+                var productsItemsCount = (await GetStat()).ItemsCount;
+                await db.HashSetAsync("products", "items", productsItemsCount);
+                await db.KeyExpireAsync("products", DateTime.Now.AddDays(1));
+                return productsItemsCount;
+            }
+            if (total.TryParse(out int val))
+                return val;
+            else
+                return 0;
         }
 
-        public async Task<ProductsStatDTO> GetStat()
+        public async Task UpdateStat(int count, int items, decimal price)
         {
-            return null;
+            await db.HashIncrementAsync("products", "count", count);
+            await db.HashIncrementAsync("products", "items", items);
+            price = price * items + await GetSum();
+            await db.HashSetAsync("products", "sum", price.ToString());
+
         }
 
-        public Task UpdateStat(int count, int items, decimal price)
+        private async Task<ProductsStatDTO> GetStat()
         {
-            throw new NotImplementedException();
+            using (var dClient = _clientFactory.CreateClient("ProductsDatabaseClient"))
+            {
+                try
+                {
+                    using (var response = await dClient.GetAsync($"/api/Products/GetStat"))
+                    {
+                        response.EnsureSuccessStatusCode();
+                        var products = await response.Content.ReadAsAsync<ProductsStatDTO>();
+                        return products;
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+            }
         }
+
+
     }
 }

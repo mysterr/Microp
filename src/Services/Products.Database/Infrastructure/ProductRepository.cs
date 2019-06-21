@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Domain.Models;
+using EasyNetQ;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 using Products.Database.Data;
@@ -13,93 +14,68 @@ namespace Products.Database.Infrastructure
 {
     public class ProductRepository : IProductRepository
     {
-        //private readonly List<ProductDTO> _list = new List<ProductDTO>();
-        private readonly ProductsDbContext _context;
+        private readonly IProductsDbContext _context;
+        private readonly IBus _bus;
         private readonly IMapper _mapper;
-        public ProductRepository(ProductsDbContext context, IMapper mapper)
+
+        public ProductRepository(IProductsDbContext context, IBus bus, IMapper mapper)
         {
-            _mapper = mapper;
             _context = context;
-
-            //_list.Add(new ProductDTO { Count = 1, Name = "aaabbb", Price = 10.1M });
-            //_list.Add(new ProductDTO { Count = 3, Name = "zzz", Price = 1.9M });
+            _bus = bus;
+            _mapper = mapper;
         }
-        public async Task<ProductsStatDTO> GetStat()
+        public async Task<ProductsStat> GetStat()
         {
-            if (0 == await _context.Products.CountDocumentsAsync(_ => true))
-            {
-                return new ProductsStatDTO
-                {
-                    ItemsCount = 0,
-                    ProductsCount = 0,
-                    Sum = 0
-                };
-            }
             try
             {
-                var total = await _context.Products.Aggregate().Group(_ => true,
-                        g => new
-                        {
-                            itemsCount = g.Count(),
-                            productsCount = g.Sum(f => f.Count),
-                            productsSum = g.Sum(f => f.Price)
-                        }).FirstAsync();
-
-                return new ProductsStatDTO
-                {
-                    ItemsCount = total.itemsCount,
-                    ProductsCount = total.productsCount,
-                    Sum = total.productsSum
-                };
+                var productsStat = await _context.GetStatAsync();
+                if (productsStat == null)
+                    productsStat = new ProductsStat
+                    {
+                        ProductsCount = 0,
+                        ItemsCount = 0,
+                        Sum = 0
+                    };
+                return productsStat;
             }
             catch (Exception ex)
             {
 
                 throw new DatabaseErrorException(ex);
             }
-
-
-
-            //return Task.Run(() => new ProductsStatDTO { ItemsCount = _context.Products.Sum(s => s.Count), ProductsCount = _context.Products.Count(), Sum = _context.Products.Sum(s => s.Price) });
-            //return Task.Run(() => new ProductsStatDTO { ItemsCount = _list.Sum(s => s.Count), ProductsCount = _list.Count(), Sum = _list.Sum(s => s.Price) });
         }
 
-        public async Task<IEnumerable<ProductDTO>> GetList(string name)
+        public async Task<IEnumerable<Product>> GetList(string name)
         {
-            if (0 == await _context.Products.CountDocumentsAsync(_ => true))
-            {
-                return new List<ProductDTO>();
-            }
-            var filter = Builders<Product>.Filter.Regex(f => f.Name, $"/{name ?? ""}/i");
             try
             {
-                var products = await _context.Products.Find(filter).ToListAsync();
+                var products = await _context.GetAsync(name);
                 if (products.Any())
-                    return _mapper.Map<IEnumerable<ProductDTO>>(products);
+                    return products; 
                 else
-                    return new List<ProductDTO>();
+                    return new List<Product>();
             }
             catch (Exception ex)
             {
                 throw new DatabaseErrorException(ex);
             }
-            //var res = _mapper.Map<IEnumerable<ProductDTO>>(_context.Products).Where(s => s.Name.Contains(name));
-            //return Task.Run(() => _list.Where(s => s.Name.Contains(name)));
         }
 
-        public async Task<bool> Add(ProductDTO productDto)
+        public async Task<bool> Add(Product product)
         {
-            var product = new Product() { Name = productDto.Name, Count = productDto.Count, Price = productDto.Price };
             try
             {
-                await _context.Products.InsertOneAsync(product);
+                if (product.Price <= 0 | product.Count <= 0)
+                    return false;
+                var res = await _context.AddAsync(product);
+                var productDto = _mapper.Map<ProductDTO>(product);
+                await _bus.PubSub.PublishAsync(productDto, "product.added");
+                return res;
             }
-            catch
+            catch (Exception ex)
             {
                 return false;
             }
-            //_list.Add(productDto);
-            return true;
         }
     }
 }

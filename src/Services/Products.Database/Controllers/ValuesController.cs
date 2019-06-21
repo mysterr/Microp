@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Domain.Models;
+using Microsoft.AspNetCore.Mvc;
 using Products.Database.Infrastructure;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Products.Database.Controllers
@@ -10,10 +13,13 @@ namespace Products.Database.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;
+        private readonly IMapper _mapper;
 
-        public ProductsController(IProductService productService)
+
+        public ProductsController(IProductService productService, IMapper mapper)
         {
-            this._productService = productService;
+            _productService = productService;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -21,7 +27,8 @@ namespace Products.Database.Controllers
         {
             try
             {
-                var result = await _productService.GetStat();
+                var productStat = await _productService.GetStat();
+                var result = _mapper.Map<ProductsStatDTO>(productStat);
                 return Ok(result);
             }
             catch (Exception e)
@@ -35,7 +42,8 @@ namespace Products.Database.Controllers
         {
             try
             {
-                var result = await _productService.GetList(name);
+                var products = await _productService.GetList(name);
+                var result = _mapper.Map<IEnumerable<ProductDTO>>(products);
                 return Ok(result);
             }
             catch (Exception e)

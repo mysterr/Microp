@@ -1,6 +1,7 @@
 ﻿using Domain.Models;
 using EasyNetQ.AutoSubscribe;
 using Microsoft.Extensions.DependencyInjection;
+using Products.Database.Model;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,8 +20,15 @@ namespace Products.Database.Infrastructure
 
         [AutoSubscriberConsumer(SubscriptionId = "ProductMessageService.AddProduct")]
         [ForTopic("product.add")]
-        public async Task ConsumeAsync(ProductDTO product, CancellationToken token = default)
+        public async Task ConsumeAsync(ProductDTO productDto, CancellationToken token = default)
         {
+            var product = new Product
+            {
+                Name = productDto.Name,
+                Count = productDto.Count,
+                Price = productDto.Price
+                //Id = new Guid()
+            };
             await _productRepository.Add(product);
         }
     }

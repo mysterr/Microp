@@ -1,5 +1,8 @@
 ﻿using AutoMapper;
 using Domain.Models;
+using EasyNetQ;
+using EasyNetQ.FluentConfiguration;
+using EasyNetQ.Producer;
 using MongoDB.Driver;
 using Moq;
 using Products.Database.Data;
@@ -7,6 +10,7 @@ using Products.Database.Infrastructure;
 using Products.Database.Model;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -16,35 +20,35 @@ namespace Services.Tests
     public class DRepositoryTest
     {
         private readonly IProductRepository _productRepository;
+        private readonly Mock<IBus> _busMock;
+        private readonly Mock<IProductsDbContext> _contextMock;
+        private readonly Mock<IMapper> _mapperMock;
 
         public DRepositoryTest()
         {
             var productList = new List<Product>
             {
-                new Product { Id = new Guid(), Name = "abcde", Count = 2, Price = 13M },
-                new Product { Id = new Guid(), Name = "hello", Count = 8, Price = 2.5M }
+                new Product { Name = "abcde", Count = 2, Price = 13M },
+                new Product { Name = "hello", Count = 8, Price = 2.5M }
             };
+            var productStat = new ProductsStat { ItemsCount = 2, Sum = 13M, ProductsCount = 10 };
 
-            var contextMock = new Mock<ProductsDbContext>();
-            //var databaseMock = new Mock<IMongoDatabase>();
-            var mongoColl = new Mock<IMongoCollection<Product>>();
-            //databaseMock.Setup(m => m.GetCollection<Product>("Product", null))
-            //    .Returns(mongoColl.Object);
+            _contextMock = new Mock<IProductsDbContext>();
 
-            var cursorMock = new Mock<IAsyncCursor<Product>>();
-            cursorMock.Setup(x => x.Current).Returns(productList);
+            _contextMock.Setup(c => c.GetAsync(It.IsAny<string>()))
+                .ReturnsAsync(productList);
+            _contextMock.Setup(c => c.AddAsync(It.IsAny<Product>()))
+                .ReturnsAsync(true);
+            _contextMock.Setup(c => c.GetStatAsync())
+                .ReturnsAsync(productStat);
 
-            mongoColl.Setup(x => x.FindAsync(It.IsAny<FilterDefinition<Product>>(), It.IsAny<FindOptions<Product>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(() => cursorMock.Object);
+            _busMock = new Mock<IBus>();
+            _mapperMock = new Mock<IMapper>();
 
-            // need to mock Aggregate
-            //  var mongoAggr = new Mock<IAggregateFluent<Product>>();
+            var pubsubMock = new Mock<IPubSub>();
+            _busMock.Setup(b => b.PubSub).Returns(pubsubMock.Object);
 
-            contextMock.Setup(c => c.Products)
-                .Returns(mongoColl.Object);
-
-            var mapperMock = new Mock<IMapper>();
-            _productRepository = new ProductRepository(contextMock.Object, mapperMock.Object);
+            _productRepository = new ProductRepository(_contextMock.Object, _busMock.Object, _mapperMock.Object);
         }
 
         [Fact]
@@ -52,7 +56,8 @@ namespace Services.Tests
         {
             var result = await _productRepository.GetStat();
 
-            Assert.IsType<ProductsStatDTO>(result);
+            Assert.IsType<ProductsStat>(result);
+            _contextMock.Verify(c => c.GetStatAsync());
         }
 
         [Fact]
@@ -70,12 +75,52 @@ namespace Services.Tests
         {
             var list = await _productRepository.GetList("abc");
 
-            Assert.IsAssignableFrom<IEnumerable<ProductDTO>>(list);
+            Assert.IsAssignableFrom<IEnumerable<Product>>(list);
+            _contextMock.Verify(c => c.GetAsync("abc"));
         }
         [Fact]
         public async Task CanAddProduct()
         {
-            await _productRepository.Add(new ProductDTO());
+            var product = new Product() {Count = 1, Name = "abc", Price = 10M };
+            var res = await _productRepository.Add(product);
+
+            Assert.True(res);
+            _contextMock.Verify(c => c.AddAsync(product), Times.Once);
+        }
+        
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-10)]
+        [InlineData(int.MinValue)]
+        public async Task NegativeOrZeroPriceReturnsFalse(decimal price)
+        {
+            var product = new Product() {Count = 1, Name = "abc", Price = price };
+            var res = await _productRepository.Add(product);
+
+            Assert.False(res);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-10)]
+        [InlineData(int.MinValue)]
+        public async Task NegativeOrZeroCountReturnsFalse(int count)
+        {
+            var product = new Product() {Count = count, Name = "abc", Price = 10M };
+            var res = await _productRepository.Add(product);
+
+            Assert.False(res);
+        }
+        [Fact]
+        public async Task WhenProductAddedEventMessageSent()
+        {
+            var productDto = new ProductDTO() {Count = 1, Name = "abc", Price = 10M };
+            var product = new Product() {Count = 1, Name = "abc", Price = 10M };
+            _mapperMock.Setup(m => m.Map<ProductDTO>(It.IsAny<object>())).Returns(productDto);
+
+            await _productRepository.Add(product);
+
+            _busMock.Verify(b => b.PubSub.PublishAsync(productDto, It.IsAny<System.Action<IPublishConfiguration>>(), It.IsAny<CancellationToken>()), Times.Once());
         }
     }
 }

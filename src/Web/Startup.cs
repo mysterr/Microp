@@ -14,6 +14,7 @@ using System.Reflection;
 using Web.Infrastructure;
 using Web.Models;
 using StackExchange.Redis;
+using EasyNetQ;
 
 namespace Web
 {
@@ -43,14 +44,14 @@ namespace Web
             services.AddSingleton<IRepository<Product>, ProductRepository>();
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
             //services.AddDistributedRedisCache(options => 
-            //    options.Configuration = Configuration.GetSection("Redis:Name").Value);
+            //    options.Configuration = Configuration.GetSection("Redis:ConnectionString").Value);
             services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(Configuration.GetSection("Redis:ConnectionString").Value));
+            services.AddSingleton<HttpClientHandler>();
 
-            var handler = new HttpClientHandler
-            {
-                CookieContainer = new CookieContainer(),
-                // ignore SSL check 
-                ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) =>
+            var handler = services.BuildServiceProvider().GetService<HttpClientHandler>();
+            handler.CookieContainer = new CookieContainer();
+            // ignore SSL check 
+            handler.ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) =>
                 {
                     if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
                     {
@@ -59,8 +60,7 @@ namespace Web
                     }
                     else
                         return policyErrors == SslPolicyErrors.None;
-                }
-            };
+                };
             //handler.ClientCertificates.Add(certificate);
 
             services.AddHttpClient("ProductsDatabaseClient", client =>
@@ -75,6 +75,7 @@ namespace Web
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             }).ConfigurePrimaryHttpMessageHandler(() => handler);
 
+            services.AddSingleton(RabbitHutch.CreateBus(Configuration.GetSection("RabbitConnection:ConnectionString").Value));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

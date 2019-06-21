@@ -43,7 +43,7 @@ namespace QIntegrationTests
 
         public void Dispose()
         {
-
+            _bus.Dispose();
         }
     }
 }

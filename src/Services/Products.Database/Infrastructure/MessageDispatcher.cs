@@ -21,10 +21,10 @@ namespace Products.Database.Infrastructure
         }
 
 
-        Task IAutoSubscriberMessageDispatcher.DispatchAsync<TMessage, TConsumer>(TMessage message, CancellationToken cancellationToken)
+        async Task IAutoSubscriberMessageDispatcher.DispatchAsync<TMessage, TConsumer>(TMessage message, CancellationToken cancellationToken)
         {
             var consumer = _serviceProvider.GetRequiredService<TConsumer>();
-            return consumer.ConsumeAsync(message);
+            await consumer.ConsumeAsync(message);
         }
     }
 }

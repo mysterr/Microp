@@ -150,10 +150,10 @@ namespace Web.Tests
             Assert.IsType<ViewResult>(result);
         }
         [Fact]
-        public void Add_CallsRepositoryCreate()
+        public async void Add_CallsRepositoryCreate()
         {
             var product = new Product("Test prod", 10, 15.5M);
-            var result = _controller.Add(product);
+            var result = await _controller.Add(product);
             Assert.NotNull(result);
             Assert.IsType<ViewResult>(result);
             _repositoryMock.Verify(r => r.Create(product));

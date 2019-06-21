@@ -11,10 +11,10 @@ namespace Products.Queue.Infrastructure
         {
             _bus = bus;
         }
-        public async Task Add(ProductDTO product)
+        public async Task Add(ProductDTO productDto)
         {
             // send to queue
-            await _bus.PublishAsync(product, "product.add");
+            await _bus.PubSub.PublishAsync(productDto, c => c.WithTopic("product.add"));
         }
     }
 }

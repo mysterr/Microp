@@ -1,16 +1,16 @@
 ﻿using Domain.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using Products.Database.Infrastructure;
-using Products.Database.Model;
 using System;
+using Web.Infrastructure;
+using Web.Models;
 using Xunit;
 
-namespace Products.Database.Service.Tests.UnitTests
+namespace Web.Tests.UnitTests
 {
     public class TestedMessageConsumer : MessagesConsumer
     {
-        public IProductRepository _productRepository;
+        public IRepository<Product> _productRepository;
         public TestedMessageConsumer(IServiceProvider provider) : base(provider)
         {
 
@@ -19,11 +19,11 @@ namespace Products.Database.Service.Tests.UnitTests
     public class MessageQueueTest
     {
         private readonly TestedMessageConsumer _messageConsumer;
-        private readonly Mock<IProductRepository> _repoMock;
+        private readonly Mock<IRepository<Product>> _repoMock;
         public MessageQueueTest()
         {
             var serviceMock = new Mock<IServiceProvider>();
-            _repoMock = new Mock<IProductRepository>();
+            _repoMock = new Mock<IRepository<Product>>();
 
             var serviceScope = new Mock<IServiceScope>();
             serviceScope.Setup(x => x.ServiceProvider).Returns(serviceMock.Object);
@@ -38,7 +38,7 @@ namespace Products.Database.Service.Tests.UnitTests
                 .Returns(serviceScopeFactory.Object);
 
             serviceMock
-                .Setup(x => x.GetService(typeof(IProductRepository)))
+                .Setup(x => x.GetService(typeof(IRepository<Product>)))
                 .Returns(_repoMock.Object);
 
 
@@ -52,7 +52,6 @@ namespace Products.Database.Service.Tests.UnitTests
         {
             var productDto = new ProductDTO();
             await _messageConsumer.ConsumeAsync(productDto);
-            _repoMock.Verify(r => r.Add(It.IsAny<Product>()), Times.Once);
         }
     }
 }

@@ -1,7 +1,9 @@
 using AutoMapper;
 using Domain.Models;
+using EasyNetQ;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using Moq;
 using Products.Database.Data;
 using Products.Database.Infrastructure;
 using Products.Database.Model;
@@ -15,9 +17,9 @@ namespace DatabaseIntegrationTests
 {
     public class MyOptions : IOptions<Settings>
     {
-        private readonly string ConnectionString;
+        private readonly string MongoConnectionString;
         private readonly string Database;
-        public Settings Value => new Settings { ConnectionString = ConnectionString, Database = Database };
+        public Settings Value => new Settings { ConnectionString = MongoConnectionString, Database = Database };
 
         public MyOptions()
         {
@@ -27,7 +29,7 @@ namespace DatabaseIntegrationTests
                  .AddEnvironmentVariables();
 
             IConfiguration config = builder.Build();
-            ConnectionString = config.GetSection("MongoConnection:ConnectionString").Value;
+            MongoConnectionString = config.GetSection("MongoConnection:ConnectionString").Value;
             Database = config.GetSection("MongoConnection:Database").Value;
         }
     }
@@ -48,20 +50,22 @@ namespace DatabaseIntegrationTests
 
             var options = new MyOptions();
             var context = new ProductsDbContext(options);
-            var mockMapper = new MapperConfiguration(cfg =>
-            {
-                cfg.AddProfile(new DomainProfile());
-            });
-            var mapper = mockMapper.CreateMapper();
-            _productRepository = new ProductRepository(context, mapper);
+            var bus = new Mock<IBus>().Object;
+            
+            var mapperConf = new MapperConfiguration(cfg =>
+                                {
+                                    cfg.AddProfile(new DomainProfile());
+                                });
+            var mapper = mapperConf.CreateMapper();
+            _productRepository = new ProductRepository(context, bus, mapper);
         }
 
         [Fact]
-        public async Task GetStatReturnsProductsStatDTOAsync()
+        public async Task GetStatReturnsProductsStatAsync()
         {
             var result = await _productRepository.GetStat();
 
-            Assert.IsType<ProductsStatDTO>(result);
+            Assert.IsType<ProductsStat>(result);
         }
 
         [Fact]
@@ -75,16 +79,16 @@ namespace DatabaseIntegrationTests
             Assert.NotEqual(0, res.Sum);
         }
         [Fact]
-        public async Task GetListReturnsListOfProductDTOAsync()
+        public async Task GetListReturnsListOfProductAsync()
         {
             var list = await _productRepository.GetList("abc");
 
-            Assert.IsAssignableFrom<IEnumerable<ProductDTO>>(list);
+            Assert.IsAssignableFrom<IEnumerable<Product>>(list);
         }
         [Fact]
         public async Task CanAddProduct()
         {
-            await _productRepository.Add(new ProductDTO());
+            await _productRepository.Add(new Product());
         }
     }
 }

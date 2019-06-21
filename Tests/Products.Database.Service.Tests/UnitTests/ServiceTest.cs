@@ -2,6 +2,7 @@
 using Moq;
 using Products.Database.Domain;
 using Products.Database.Infrastructure;
+using Products.Database.Model;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,11 +17,11 @@ namespace Services.Tests
         public DServiceTest()
         {
             _mockRepository = new Mock<IProductRepository>();
-            _mockRepository.Setup(r => r.GetStat()).ReturnsAsync(new ProductsStatDTO { ItemsCount = 10, ProductsCount = 2, Sum = 15.5M });
-            var productList = new List<ProductDTO>
+            _mockRepository.Setup(r => r.GetStat()).ReturnsAsync(new ProductsStat { ItemsCount = 10, ProductsCount = 2, Sum = 15.5M });
+            var productList = new List<Product>
             {
-                new ProductDTO { Name = "abcde", Count = 2, Price = 13M },
-                new ProductDTO { Name = "hello", Count = 8, Price = 2.5M }
+                new Product { Id = new System.Guid(), Name = "abcde", Count = 2, Price = 13M },
+                new Product { Id = new System.Guid(), Name = "hello", Count = 8, Price = 2.5M }
             };
             _mockRepository.Setup(r => r.GetList("abc")).ReturnsAsync(productList.Where(s => s.Name.Contains("abc")));
             _mockRepository.Setup(r => r.GetList("")).ReturnsAsync(productList);
@@ -34,7 +35,7 @@ namespace Services.Tests
         {
             var result = await _service.GetStat();
 
-            Assert.IsType<ProductsStatDTO>(result);
+            Assert.IsType<ProductsStat>(result);
         }
 
         [Fact]
@@ -54,7 +55,7 @@ namespace Services.Tests
         {
             var list = await _service.GetList("abc");
 
-            Assert.IsAssignableFrom<IEnumerable<ProductDTO>>(list);
+            Assert.IsAssignableFrom<IEnumerable<Product>>(list);
             _mockRepository.Verify(r => r.GetList("abc"));
         }
 
@@ -66,7 +67,7 @@ namespace Services.Tests
         {
             var list = await _service.GetList(searchString);
 
-            var listOfProducts = Assert.IsAssignableFrom<IEnumerable<ProductDTO>>(list);
+            var listOfProducts = Assert.IsAssignableFrom<IEnumerable<Product>>(list);
 
             Assert.True(listOfProducts.All(l => l.Name.IndexOf(searchString) > -1));
         }
@@ -77,7 +78,7 @@ namespace Services.Tests
             var searchString = "";
             var list = await _service.GetList(searchString);
 
-            var listOfProducts = Assert.IsAssignableFrom<IEnumerable<ProductDTO>>(list);
+            var listOfProducts = Assert.IsAssignableFrom<IEnumerable<Product>>(list);
 
             var stat = await _service.GetStat();
 
@@ -90,7 +91,7 @@ namespace Services.Tests
             var searchString = "!#$%@^%$";
             var list = await _service.GetList(searchString);
 
-            var listOfProducts = Assert.IsAssignableFrom<IEnumerable<ProductDTO>>(list);
+            var listOfProducts = Assert.IsAssignableFrom<IEnumerable<Product>>(list);
 
             Assert.Empty(listOfProducts);
         }
@@ -99,7 +100,7 @@ namespace Services.Tests
         {
             var list = await _service.GetList("test");
             var testCnt = list.Count();
-            var product = new ProductDTO { Name = "test", Count = 5, Price = 4M };
+            var product = new Product { Name = "test", Count = 5, Price = 4M };
             await _service.Add(product);
             list = await _service.GetList("test");
             //Assert.Equal(testCnt+1, list.Count());

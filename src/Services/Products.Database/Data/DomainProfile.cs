@@ -9,6 +9,9 @@ namespace Products.Database.Data
         public DomainProfile()
         {
             CreateMap<Product, ProductDTO>();
+            //CreateMap<ProductDTO, Product>();
+            CreateMap<ProductsStat, ProductsStatDTO>();
+            CreateMap<ProductsStatDTO, ProductsStat>();
         }
     }
 }
