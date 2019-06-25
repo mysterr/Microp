@@ -84,9 +84,9 @@ namespace Web.Controllers
                 ViewData["error"] = "Name should not be null";
             else if (product.Name == "")
                 ViewData["error"] = "Name should not be empty";
-            else if (product.Count == 0)
+            else if (product.Count <= 0)
                 ViewData["error"] = "Count should be more than 0";
-            else if (product.Price == 0)
+            else if (product.Price <= 0)
                 ViewData["error"] = "Price should be more than 0";
             else
             {

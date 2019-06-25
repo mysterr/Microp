@@ -69,7 +69,7 @@ namespace Products.Database.Infrastructure
                     return false;
                 var res = await _context.AddAsync(product);
                 var productDto = _mapper.Map<ProductDTO>(product);
-                await _bus.PubSub.PublishAsync(productDto, "product.added");
+                await _bus.PubSub.PublishAsync(productDto, c => c.WithTopic("product.added"));
                 return res;
             }
             catch (Exception ex)

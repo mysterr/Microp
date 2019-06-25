@@ -15,6 +15,7 @@ using Web.Infrastructure;
 using Web.Models;
 using StackExchange.Redis;
 using EasyNetQ;
+using EasyNetQ.AutoSubscribe;
 
 namespace Web
 {
@@ -75,6 +76,8 @@ namespace Web
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             }).ConfigurePrimaryHttpMessageHandler(() => handler);
 
+            services.AddSingleton<MessageDispatcher>();
+            services.AddSingleton<MessagesConsumer>();
             services.AddSingleton(RabbitHutch.CreateBus(Configuration.GetSection("RabbitConnection:ConnectionString").Value));
         }
 
@@ -102,6 +105,14 @@ namespace Web
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            var bus = app.ApplicationServices.GetService<IBus>();
+            var subscriber = new AutoSubscriber(bus, "ProductMessageService")
+            {
+                AutoSubscriberMessageDispatcher = app.ApplicationServices.GetService<MessageDispatcher>(),
+            };
+            // -- should use EasyNetQ version from 3.6.0 (3.0-3.5 doesn't work properly)
+            subscriber.SubscribeAsync(new Assembly[] { Assembly.GetExecutingAssembly() });
         }
     }
 }
