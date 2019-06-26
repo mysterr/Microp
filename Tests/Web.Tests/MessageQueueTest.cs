@@ -53,5 +53,30 @@ namespace Web.Tests.UnitTests
             var productDto = new ProductDTO();
             await _messageConsumer.ConsumeAsync(productDto);
         }
+
+        [Fact]
+        public async void ConsumeCallsUpdateStat()
+        {
+            var productDto = new ProductDTO();
+            await _messageConsumer.ConsumeAsync(productDto);
+            _repoMock.Verify(r => r.IncrementStat(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<decimal>()), Times.Once);
+        }
+
+        [Fact]
+        public async void IfProductIsNewCountIncrementedByOne()
+        {
+            var productDto = new ProductDTO();
+            productDto.IsNew = true;
+            await _messageConsumer.ConsumeAsync(productDto);
+            _repoMock.Verify(r => r.IncrementStat(1, It.IsAny<int>(), It.IsAny<decimal>()), Times.Once);
+        }
+        [Fact]
+        public async void IfProductIsNotNewCountNotIncremented()
+        {
+            var productDto = new ProductDTO();
+            productDto.IsNew = false;
+            await _messageConsumer.ConsumeAsync(productDto);
+            _repoMock.Verify(r => r.IncrementStat(0, It.IsAny<int>(), It.IsAny<decimal>()), Times.Once);
+        }
     }
 }

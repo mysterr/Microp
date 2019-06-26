@@ -10,6 +10,6 @@ namespace Web.Infrastructure
         Task<int> GetTotal();
         Task Create(T item);
         Task<IEnumerable<T>> Get(string name);
-        Task UpdateStat(int count, int items, decimal price);
+        Task IncrementStat(int count, int items, decimal price);
     }
 }

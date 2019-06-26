@@ -116,7 +116,7 @@ namespace Web.Infrastructure
                 return 0;
         }
 
-        public async Task UpdateStat(int count, int items, decimal price)
+        public async Task IncrementStat(int count, int items, decimal price)
         {
             await db.HashIncrementAsync("products", "count", count);
             await db.HashIncrementAsync("products", "items", items);

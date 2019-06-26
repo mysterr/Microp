@@ -8,7 +8,8 @@ namespace Products.Database.Data
     {
         public DomainProfile()
         {
-            CreateMap<Product, ProductDTO>();
+            CreateMap<Product, ProductDTO>()
+                .ForMember(dest => dest.IsNew, opt => opt.Ignore());
             //CreateMap<ProductDTO, Product>();
             CreateMap<ProductsStat, ProductsStatDTO>();
             CreateMap<ProductsStatDTO, ProductsStat>();

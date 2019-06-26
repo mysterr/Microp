@@ -214,9 +214,9 @@ namespace Web.Tests
         }
 
         [Fact]
-        public async void UpdateStat_CallsIncrementDatabase()
+        public async void IncrementStat_CallsIncrementDatabase()
         {
-            await _productRepository.UpdateStat(1, 12, 33.6M);
+            await _productRepository.IncrementStat(1, 12, 33.6M);
             var sum = 100 + 12 * 33.6M;
             _databaseMock.Verify(d => d.HashIncrementAsync("products", "count", 1, It.IsAny<CommandFlags>()));
             _databaseMock.Verify(d => d.HashIncrementAsync("products", "items", 12, It.IsAny<CommandFlags>()));

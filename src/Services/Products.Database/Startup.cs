@@ -84,7 +84,7 @@ namespace Products.Database
             });
             var bus = app.ApplicationServices.GetService<IBus>();
             var subscriber = new AutoSubscriber(bus, "ProductMessageService")
-            {
+            {                 
                 AutoSubscriberMessageDispatcher = app.ApplicationServices.GetService<MessageDispatcher>(),
             };
             // -- should use EasyNetQ version from 3.6.0 (3.0-3.5 doesn't work properly)

@@ -79,10 +79,11 @@ namespace Web.Controllers
 
             ViewData["error"] = "";
             ViewData["message"] = "";
+            product.Name = product?.Name?.Trim(' ');
 
             if (product.Name == null)
                 ViewData["error"] = "Name should not be null";
-            else if (product.Name == "")
+            else if (product.Name.Length == 0)
                 ViewData["error"] = "Name should not be empty";
             else if (product.Count <= 0)
                 ViewData["error"] = "Count should be more than 0";

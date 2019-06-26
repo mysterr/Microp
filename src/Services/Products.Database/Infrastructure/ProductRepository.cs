@@ -51,7 +51,7 @@ namespace Products.Database.Infrastructure
             {
                 var products = await _context.GetAsync(name);
                 if (products.Any())
-                    return products; 
+                    return products;
                 else
                     return new List<Product>();
             }
@@ -69,12 +69,28 @@ namespace Products.Database.Infrastructure
                     return false;
                 var res = await _context.AddAsync(product);
                 var productDto = _mapper.Map<ProductDTO>(product);
+                productDto.IsNew = await IsNew(product.Name);
                 await _bus.PubSub.PublishAsync(productDto, c => c.WithTopic("product.added"));
                 return res;
             }
             catch (Exception ex)
             {
                 return false;
+            }
+        }
+
+        private async Task<bool> IsNew(string name)
+        {
+            try
+            {
+                var products = await _context.GetAsync(name);
+                if (products.Any())
+                    return false;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseErrorException(ex);
             }
         }
     }

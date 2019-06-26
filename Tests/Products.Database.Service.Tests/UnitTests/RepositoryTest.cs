@@ -82,6 +82,8 @@ namespace Services.Tests
         public async Task CanAddProduct()
         {
             var product = new Product() {Count = 1, Name = "abc", Price = 10M };
+            var productDto = new ProductDTO() {Count = 1, Name = "abc", Price = 10M };
+            _mapperMock.Setup(m => m.Map<ProductDTO>(It.IsAny<object>())).Returns(productDto);
             var res = await _productRepository.Add(product);
 
             Assert.True(res);
@@ -111,12 +113,59 @@ namespace Services.Tests
 
             Assert.False(res);
         }
-        [Fact]
-        public async Task WhenProductAddedEventMessageSent()
+
+        [Theory]
+        [InlineData(9, "abc", 15)]
+        [InlineData(5, "test", 25)]
+        public async Task WhenProductAddedEventMessageSent(int count, string name, decimal price)
         {
-            var productDto = new ProductDTO() {Count = 1, Name = "abc", Price = 10M };
-            var product = new Product() {Count = 1, Name = "abc", Price = 10M };
+            var productDto = new ProductDTO() {Count = count, Name = name, Price = price };
+            var product = new Product() {Count = count, Name = name, Price = price };
             _mapperMock.Setup(m => m.Map<ProductDTO>(It.IsAny<object>())).Returns(productDto);
+
+            await _productRepository.Add(product);
+
+            _busMock.Verify(b => b.PubSub.PublishAsync(It.IsAny<ProductDTO>(), It.IsAny<System.Action<IPublishConfiguration>>(), It.IsAny<CancellationToken>()), Times.Once());
+        }
+
+        [Theory]
+        [InlineData(9, "abc", 15)]
+        [InlineData(5, "test", 25)]
+        public async Task WhenProductAddedCheckIfProductAlreadyExists(int count, string name, decimal price)
+        {
+            var productDto = new ProductDTO() {Count = count, Name = name, Price = price };
+            var product = new Product() {Count = count, Name = name, Price = price };
+            _mapperMock.Setup(m => m.Map<ProductDTO>(It.IsAny<object>())).Returns(productDto);
+
+            await _productRepository.Add(product);
+
+            _contextMock.Verify(c => c.GetAsync(name));
+        }
+
+        [Theory]
+        [InlineData(9, "abc", 15)]
+        [InlineData(5, "test", 25)]
+        public async Task WhenProductAddedAndProductAlreadyExistsCountIsZero(int count, string name, decimal price)
+        {
+            var productDto = new ProductDTO() {Count = 0, Name = name, Price = price };
+            var product = new Product() {Count = count, Name = name, Price = price };
+            _mapperMock.Setup(m => m.Map<ProductDTO>(It.IsAny<object>())).Returns(productDto);
+            _contextMock.Setup(c => c.GetAsync(name)).ReturnsAsync(new List<Product>() { product });
+
+            await _productRepository.Add(product);
+
+            _busMock.Verify(b => b.PubSub.PublishAsync(productDto, It.IsAny<System.Action<IPublishConfiguration>>(), It.IsAny<CancellationToken>()), Times.Once());
+        }
+
+        [Theory]
+        [InlineData(9, "abc", 15)]
+        [InlineData(5, "test", 25)]
+        public async Task WhenProductAddedAndProductNotExistsCountIsOne(int count, string name, decimal price)
+        {
+            var productDto = new ProductDTO() {Count = 1, Name = name, Price = price };
+            var product = new Product() {Count = count, Name = name, Price = price };
+            _mapperMock.Setup(m => m.Map<ProductDTO>(It.IsAny<object>())).Returns(productDto);
+            _contextMock.Setup(c => c.GetAsync(name)).ReturnsAsync(new List<Product>());
 
             await _productRepository.Add(product);
 

@@ -8,7 +8,7 @@ using Web.Models;
 
 namespace Web.Infrastructure
 {
-     public class MessagesConsumer : IConsumeAsync<ProductDTO>, IConsume<ProductDTO>
+     public class MessagesConsumer : IConsumeAsync<ProductDTO>//, IConsume<ProductDTO>
     {
         private readonly IRepository<Product> _productRepository;
 
@@ -21,15 +21,15 @@ namespace Web.Infrastructure
             }
         }
 
-        [AutoSubscriberConsumer(SubscriptionId = "ProductMessageService.AddProduct.Event")]
+        //[AutoSubscriberConsumer(SubscriptionId = "ProductMessageService.AddProduct.Event")]
         [ForTopic("product.added")]
         public Task ConsumeAsync(ProductDTO productDto, CancellationToken token = default)
         {
-            return _productRepository.UpdateStat(1, productDto.Count, productDto.Price);
+            return _productRepository.IncrementStat(productDto.IsNew ? 1 : 0, productDto.Count, productDto.Price);
         }
-        public void Consume(ProductDTO productDto, CancellationToken token = default)
-        {
-            Task.Run(async () => await _productRepository.UpdateStat(1, productDto.Count, productDto.Price));
-        }
+        //public void Consume(ProductDTO productDto, CancellationToken token = default)
+        //{
+        //    Task.Run(async () => await _productRepository.IncrementStat(productDto.IsNew ? 1 : 0, productDto.Count, productDto.Price));
+        //}
     }
 }
