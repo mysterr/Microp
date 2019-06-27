@@ -49,7 +49,7 @@ namespace Products.Database.Infrastructure
         {
             try
             {
-                var products = await _context.GetAsync(name);
+                var products = await _context.SearchAsync(name);
                 if (products.Any())
                     return products;
                 else
@@ -67,9 +67,10 @@ namespace Products.Database.Infrastructure
             {
                 if (product.Price <= 0 | product.Count <= 0)
                     return false;
-                var res = await _context.AddAsync(product);
                 var productDto = _mapper.Map<ProductDTO>(product);
                 productDto.IsNew = await IsNew(product.Name);
+
+                var res = await _context.AddAsync(product);
                 await _bus.PubSub.PublishAsync(productDto, c => c.WithTopic("product.added"));
                 return res;
             }

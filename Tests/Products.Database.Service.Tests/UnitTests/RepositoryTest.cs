@@ -35,7 +35,7 @@ namespace Services.Tests
 
             _contextMock = new Mock<IProductsDbContext>();
 
-            _contextMock.Setup(c => c.GetAsync(It.IsAny<string>()))
+            _contextMock.Setup(c => c.SearchAsync(It.IsAny<string>()))
                 .ReturnsAsync(productList);
             _contextMock.Setup(c => c.AddAsync(It.IsAny<Product>()))
                 .ReturnsAsync(true);
@@ -70,14 +70,16 @@ namespace Services.Tests
             Assert.NotEqual(0, res.ProductsCount);
             Assert.NotEqual(0, res.Sum);
         }
+
         [Fact]
         public async Task GetListReturnsListOfProductDTOAsync()
         {
             var list = await _productRepository.GetList("abc");
 
             Assert.IsAssignableFrom<IEnumerable<Product>>(list);
-            _contextMock.Verify(c => c.GetAsync("abc"));
+            _contextMock.Verify(c => c.SearchAsync("abc"));
         }
+
         [Fact]
         public async Task CanAddProduct()
         {

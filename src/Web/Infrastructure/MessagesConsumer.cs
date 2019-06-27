@@ -21,7 +21,7 @@ namespace Web.Infrastructure
             }
         }
 
-        //[AutoSubscriberConsumer(SubscriptionId = "ProductMessageService.AddProduct.Event")]
+        [AutoSubscriberConsumer(SubscriptionId = "ProductMessageService.AddProduct.Event")]
         [ForTopic("product.added")]
         public Task ConsumeAsync(ProductDTO productDto, CancellationToken token = default)
         {

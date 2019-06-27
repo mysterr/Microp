@@ -11,6 +11,7 @@ namespace Products.Database.Data
         IMongoCollection<Product> Products { get; }
 
         Task<bool> AddAsync(Product product);
+        Task<IEnumerable<Product>> SearchAsync(string name);
         Task<IEnumerable<Product>> GetAsync(string name);
         Task<ProductsStat> GetStatAsync();
     }

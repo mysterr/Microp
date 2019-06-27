@@ -79,7 +79,7 @@ namespace Products.Database.Data
             }
         }
 
-        public async Task<IEnumerable<Product>> GetAsync(string name)
+        public async Task<IEnumerable<Product>> SearchAsync(string name)
         {
             var filter = Builders<Product>.Filter.Regex(f => f.Name, $"/{name ?? ""}/i");
             try
@@ -92,5 +92,18 @@ namespace Products.Database.Data
                 throw new DatabaseErrorException(ex);
             }
         }
+
+        public async Task<IEnumerable<Product>> GetAsync(string name)
+        {
+            var filter = Builders<Product>.Filter.Eq(f => f.Name, name);
+            try
+            {
+                var products = await Products.Find(filter).ToListAsync();
+                return products;
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseErrorException(ex);
+            }        }
     }
 }

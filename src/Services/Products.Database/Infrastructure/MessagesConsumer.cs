@@ -18,7 +18,7 @@ namespace Products.Database.Infrastructure
             _productRepository = services.GetRequiredService<IProductRepository>();
         }
 
-        //[AutoSubscriberConsumer(SubscriptionId = "ProductMessageService.AddProduct.Command")]
+        [AutoSubscriberConsumer(SubscriptionId = "ProductMessageService.AddProduct.Command")]
         [ForTopic("product.add")]
         public async Task ConsumeAsync(ProductDTO productDto, CancellationToken token = default)
         {
