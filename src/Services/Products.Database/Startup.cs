@@ -6,19 +6,25 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Products.Database.Data;
 using Products.Database.Domain;
 using Products.Database.Infrastructure;
 using Products.Database.Model;
+using System;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Products.Database
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private readonly ILogger _logger;
+        public Startup(IConfiguration configuration, ILogger<Startup> logger)
         {
             Configuration = configuration;
+            _logger = logger;
         }
 
         public IConfiguration Configuration { get; }
@@ -84,11 +90,19 @@ namespace Products.Database
             });
             var bus = app.ApplicationServices.GetService<IBus>();
             var subscriber = new AutoSubscriber(bus, "ProductMessageService")
-            {                 
+            {
                 AutoSubscriberMessageDispatcher = app.ApplicationServices.GetService<MessageDispatcher>(),
             };
             // -- should use EasyNetQ version from 3.6.0 (3.0-3.5 doesn't work properly)
-            subscriber.SubscribeAsync(new Assembly[] { Assembly.GetExecutingAssembly() });
+            try
+            {
+                Thread.Sleep(10000); // waiting for RabbitMQ server is loaded
+                subscriber.Subscribe(new Assembly[] { GetType().Assembly });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
 
             //var consumer = app.ApplicationServices.GetService<MessagesConsumer>();
             //bus.SubscribeAsync<ProductDTO>("ProductMessageService", async message =>

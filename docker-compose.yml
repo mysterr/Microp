@@ -54,6 +54,9 @@ services:
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
+    environment:
+      - RABBITMQ_DEFAULT_USER=products
+      - RABBITMQ_DEFAULT_PASS=demopass
     ports:
       - 15672:15672
       - 5672:5672

@@ -16,14 +16,20 @@ using Web.Models;
 using StackExchange.Redis;
 using EasyNetQ;
 using EasyNetQ.AutoSubscribe;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using System.Threading;
 
 namespace Web
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private readonly ILogger<Startup> _logger;
+
+        public Startup(IConfiguration configuration, ILogger<Startup> logger)
         {
             Configuration = configuration;
+            _logger = logger;
         }
 
         public IConfiguration Configuration { get; }
@@ -112,7 +118,15 @@ namespace Web
                 AutoSubscriberMessageDispatcher = app.ApplicationServices.GetService<MessageDispatcher>(),
             };
             // -- should use EasyNetQ version from 3.6.0 (3.0-3.5 doesn't work properly)
-            subscriber.SubscribeAsync(new Assembly[] { Assembly.GetExecutingAssembly() });
+            try
+            {
+                Thread.Sleep(10000); // waiting for RabbitMQ server is loaded
+                subscriber.Subscribe(new Assembly[] { GetType().Assembly });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
         }
     }
 }
