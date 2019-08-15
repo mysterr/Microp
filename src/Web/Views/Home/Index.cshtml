@@ -8,24 +8,40 @@
     <h4>Products Summary</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.ProductsCount)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10" id="productcount">
             @Html.DisplayFor(model => model.ProductsCount)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.ItemsCount)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10" id="itemscount">
             @Html.DisplayFor(model => model.ItemsCount)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Sum)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10" id="sum">
             @Html.DisplayFor(model => model.Sum)
         </dd>
     </dl>
 </div>
 
+<script src="js\aspnet-signalr\signalr.min.js"></script>
+<script>
+        let hubUrl = 'https://localhost/stats';
+        const hubConnection = new signalR.HubConnectionBuilder()
+            .withUrl(hubUrl)
+            .build();
+
+        hubConnection.on('UpdateStats', function (isnew, itemscount, price) {
+
+            $("#itemscount").text(itemscount + Number($("#itemscount").text()));
+            $("#productcount").text(isnew + Number($("#productcount").text()));
+            $("#sum").text(Number($("#sum").text()) + price*itemscount);
+
+        });
+        hubConnection.start();
+</script>

@@ -54,6 +54,7 @@ namespace Web
             //    options.Configuration = Configuration.GetSection("Redis:ConnectionString").Value);
             services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(Configuration.GetSection("Redis:ConnectionString").Value));
             services.AddSingleton<HttpClientHandler>();
+            services.AddSignalR();
 
             var handler = services.BuildServiceProvider().GetService<HttpClientHandler>();
             handler.CookieContainer = new CookieContainer();
@@ -104,6 +105,10 @@ namespace Web
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<StatHub>("/stats");
+            });
 
             app.UseMvc(routes =>
             {
