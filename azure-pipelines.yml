@@ -22,7 +22,6 @@ steps:
     dockerComposeFile: '**/docker-compose.yml'
     action: 'Build services'
 
-- task: VSTest@2
+- task: DotNetCoreCLI@2
   inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    command: 'test'
