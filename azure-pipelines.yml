@@ -23,9 +23,6 @@ steps:
     dockerComposeCommand: 'docker-compose build'
   inputs:
     restoreSolution: '$(solution)'
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'build'
 
 - task: VSTest@2
   inputs:
